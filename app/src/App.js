@@ -15,16 +15,14 @@ const App = () => {
           const { drizzle, drizzleState, initialized } = drizzleContext;
 
           if (!initialized) {
-            return "Loading..."
+            return "Loading...";
           }
 
-          return (
-            <MyComponent drizzle={drizzle} drizzleState={drizzleState} />
-          )
+          return <MyComponent drizzle={drizzle} drizzleState={drizzleState} />;
         }}
       </DrizzleContext.Consumer>
     </DrizzleContext.Provider>
   );
-}
+};
 
 export default App;
