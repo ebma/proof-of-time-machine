@@ -1,5 +1,5 @@
 import React from "react";
-import { DrizzleContext } from "@drizzle/react-plugin";
+import { drizzleReactHooks } from "@drizzle/react-plugin";
 import { Drizzle } from "@drizzle/store";
 import drizzleOptions from "./drizzleOptions";
 import IndexPage from "./components/pages/IndexPage";
@@ -8,19 +8,11 @@ const drizzle = new Drizzle(drizzleOptions);
 
 const App = () => {
   return (
-    <DrizzleContext.Provider drizzle={drizzle}>
-      <DrizzleContext.Consumer>
-        {(drizzleContext) => {
-          const { drizzle, drizzleState, initialized } = drizzleContext;
-
-          if (!initialized) {
-            return "Loading...";
-          }
-
-          return <IndexPage drizzle={drizzle} drizzleState={drizzleState} />;
-        }}
-      </DrizzleContext.Consumer>
-    </DrizzleContext.Provider>
+    <drizzleReactHooks.DrizzleProvider drizzle={drizzle}>
+      <drizzleReactHooks.Initializer error="There was an error.">
+        <IndexPage />
+      </drizzleReactHooks.Initializer>
+    </drizzleReactHooks.DrizzleProvider>
   );
 };
 
