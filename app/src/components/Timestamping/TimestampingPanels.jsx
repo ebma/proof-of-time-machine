@@ -1,10 +1,12 @@
 import React from "react";
+import { PropTypes } from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import ExpansionPanel from "@material-ui/core/ExpansionPanel";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import SimpleTimestampControls from "./SimpleTimestampControls";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,7 +23,103 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function TimestampingPanels() {
+function SimpleTimestampPanel(props) {
+  const classes = useStyles();
+
+  return (
+    <ExpansionPanel expanded={props.expanded} onChange={props.onChange}>
+      <ExpansionPanelSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="panel1bh-content"
+        id="panel1bh-header"
+      >
+        <Typography className={classes.heading}>Simple Timestamp</Typography>
+        <Typography className={classes.secondaryHeading}>
+          Create a simple timestamp of your document
+        </Typography>
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails>
+        <SimpleTimestampControls file={props.file} />
+      </ExpansionPanelDetails>
+    </ExpansionPanel>
+  );
+}
+
+SimpleTimestampPanel.propTypes = {
+  expanded: PropTypes.bool.isRequired,
+  file: PropTypes.any,
+  onChange: PropTypes.func,
+};
+
+function IPFSTimestampPanel(props) {
+  const classes = useStyles();
+
+  return (
+    <ExpansionPanel expanded={props.expanded} onChange={props.onChange}>
+      <ExpansionPanelSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="panel2bh-content"
+        id="panel2bh-header"
+      >
+        <Typography className={classes.heading}>Timestamp with IPFS</Typography>
+        <Typography className={classes.secondaryHeading}>
+          Create a timestamp of your document while sharing it on IPFS
+        </Typography>
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails>
+        <Typography>
+          Donec placerat, lectus sed mattis semper, neque lectus feugiat lectus,
+          varius pulvinar diam eros in elit. Pellentesque convallis laoreet
+          laoreet.
+        </Typography>
+      </ExpansionPanelDetails>
+    </ExpansionPanel>
+  );
+}
+
+IPFSTimestampPanel.propTypes = {
+  expanded: PropTypes.bool.isRequired,
+  file: PropTypes.any,
+  onChange: PropTypes.func,
+};
+
+function EncryptedIPFSTimestampPanel(props) {
+  const classes = useStyles();
+
+  return (
+    <ExpansionPanel expanded={props.expanded} onChange={props.onChange}>
+      <ExpansionPanelSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="panel3bh-content"
+        id="panel3bh-header"
+      >
+        <Typography className={classes.heading}>
+          Timestamp with IPFS (encrypted)
+        </Typography>
+        <Typography className={classes.secondaryHeading}>
+          Create a timestamp of your <b>encrypted</b> document while sharing it
+          on IPFS
+        </Typography>
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails>
+        <Typography>
+          Donec placerat, lectus sed mattis semper, neque lectus feugiat lectus,
+          varius pulvinar diam eros in elit. Pellentesque convallis laoreet
+          laoreet.
+        </Typography>
+      </ExpansionPanelDetails>
+    </ExpansionPanel>
+  );
+}
+
+EncryptedIPFSTimestampPanel.propTypes = {
+  expanded: PropTypes.bool.isRequired,
+  file: PropTypes.any,
+  onChange: PropTypes.func,
+};
+
+function TimestampingPanels(props) {
+  const { file } = props;
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
 
@@ -31,78 +129,25 @@ function TimestampingPanels() {
 
   return (
     <div className={classes.root}>
-      <ExpansionPanel
+      <SimpleTimestampPanel
         expanded={expanded === "panel1"}
+        file={file}
         onChange={handleChange("panel1")}
-      >
-        <ExpansionPanelSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1bh-content"
-          id="panel1bh-header"
-        >
-          <Typography className={classes.heading}>Simple Timestamp</Typography>
-          <Typography className={classes.secondaryHeading}>
-            Create a simple timestamp of your document
-          </Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-          <Typography>
-            Nulla facilisi. Phasellus sollicitudin nulla et quam mattis feugiat.
-            Aliquam eget maximus est, id dignissim quam.
-          </Typography>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
-      <ExpansionPanel
+      />
+      <IPFSTimestampPanel
         expanded={expanded === "panel2"}
+        file={file}
         onChange={handleChange("panel2")}
-      >
-        <ExpansionPanelSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel2bh-content"
-          id="panel2bh-header"
-        >
-          <Typography className={classes.heading}>
-            Timestamp with IPFS
-          </Typography>
-          <Typography className={classes.secondaryHeading}>
-            Create a timestamp of your document while sharing it on IPFS
-          </Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-          <Typography>
-            Donec placerat, lectus sed mattis semper, neque lectus feugiat
-            lectus, varius pulvinar diam eros in elit. Pellentesque convallis
-            laoreet laoreet.
-          </Typography>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
-      <ExpansionPanel
+      />
+      <EncryptedIPFSTimestampPanel
         expanded={expanded === "panel3"}
+        file={file}
         onChange={handleChange("panel3")}
-      >
-        <ExpansionPanelSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel3bh-content"
-          id="panel3bh-header"
-        >
-          <Typography className={classes.heading}>
-            Timestamp with IPFS (encrypted)
-          </Typography>
-          <Typography className={classes.secondaryHeading}>
-            Create a timestamp of your <b>encrypted</b> document while sharing
-            it on IPFS
-          </Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-          <Typography>
-            Donec placerat, lectus sed mattis semper, neque lectus feugiat
-            lectus, varius pulvinar diam eros in elit. Pellentesque convallis
-            laoreet laoreet.
-          </Typography>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
+      />
     </div>
   );
 }
+
+TimestampingPanels.propTypes = { file: PropTypes.any.isRequired };
 
 export default TimestampingPanels;

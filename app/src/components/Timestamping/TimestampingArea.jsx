@@ -14,21 +14,11 @@ function TimestampingArea() {
   const classes = useStyles();
 
   const [file, setFile] = React.useState(undefined);
-  const [fileContent, setFileContent] = React.useState(undefined);
 
   const onDrop = React.useCallback((acceptedFiles) => {
     if (acceptedFiles.length) {
       const selectedFile = acceptedFiles[0];
       setFile(selectedFile);
-      const reader = new FileReader();
-
-      reader.onabort = () => console.log("file reading was aborted");
-      reader.onerror = () => console.log("file reading has failed");
-      reader.onload = () => {
-        const content = reader.result;
-        setFileContent(content);
-      };
-      reader.readAsText(selectedFile);
     }
   }, []);
 
@@ -39,9 +29,9 @@ function TimestampingArea() {
         text={file ? `Selected file: '${file.name}'` : undefined}
       />
 
-      {fileContent ? (
+      {file ? (
         <Box style={{ padding: 16 }}>
-          <TimestampingPanels />
+          <TimestampingPanels file={file} />
         </Box>
       ) : undefined}
     </div>
