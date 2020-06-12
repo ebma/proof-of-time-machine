@@ -1,7 +1,7 @@
-const Timestamp = artifacts.require("Timestamp");
+const TimestampFactory = artifacts.require("TimestampFactory");
 const IdentityService = artifacts.require("IdentityService");
 
 module.exports = function (deployer) {
-  deployer.deploy(Timestamp);
+  deployer.deploy(TimestampFactory);
   deployer.deploy(IdentityService);
 };
