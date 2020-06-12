@@ -1,5 +1,5 @@
 import React from "react";
-import PropTypes from "prop-types";
+import { drizzleReactHooks } from "@drizzle/react-plugin";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
@@ -33,6 +33,17 @@ const useStyles = makeStyles((theme) => ({
 function IndexPage(props) {
   const classes = useStyles();
 
+  const { drizzle } = drizzleReactHooks.useDrizzle();
+  const drizzleState = drizzleReactHooks.useDrizzleState((drizzleState) => ({
+    account: drizzleState.accounts[0],
+  }));
+
+  React.useEffect(() => {
+    if (!drizzle.web3.eth.defaultAccount) {
+      drizzle.web3.eth.defaultAccount = drizzleState.account;
+    }
+  }, [drizzle.web3.eth.defaultAccount, drizzleState.account]);
+
   return (
     <Container className={classes.root} component="main">
       <CssBaseline />
@@ -59,7 +70,5 @@ function IndexPage(props) {
     </Container>
   );
 }
-
-IndexPage.propTypes = { drizzle: PropTypes.any, drizzleState: PropTypes.any };
 
 export default IndexPage;
