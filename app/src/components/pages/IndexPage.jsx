@@ -1,15 +1,15 @@
-import React from "react";
-import { drizzleReactHooks } from "@drizzle/react-plugin";
-import CssBaseline from "@material-ui/core/CssBaseline";
+import { Typography } from "@material-ui/core";
 import Container from "@material-ui/core/Container";
+import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
-import IdentityArea from "../Identity/IdentityArea";
+import React from "react";
+import DashboardArea from "../Dashboard/DashboardArea";
 import Footer from "../Footer";
 import Header from "../Header";
+import IdentityArea from "../Identity/IdentityArea";
 import TimestampingArea from "../Timestamping/TimestampingArea";
-import { Typography } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,22 +33,19 @@ const useStyles = makeStyles((theme) => ({
 function IndexPage(props) {
   const classes = useStyles();
 
-  const { drizzle } = drizzleReactHooks.useDrizzle();
-  const drizzleState = drizzleReactHooks.useDrizzleState((drizzleState) => ({
-    account: drizzleState.accounts[0],
-  }));
-
-  React.useEffect(() => {
-    if (!drizzle.web3.eth.defaultAccount) {
-      drizzle.web3.eth.defaultAccount = drizzleState.account;
-    }
-  }, [drizzle.web3.eth.defaultAccount, drizzleState.account]);
-
   return (
     <Container className={classes.root} component="main">
       <CssBaseline />
       <Header />
       <Grid className={classes.container} container spacing={3}>
+        <Grid className={classes.item} item xs={12} sm={12}>
+          <Paper className={classes.paper}>
+            <Typography className={classes.heading} variant="h5" align="center">
+              Dashboard
+            </Typography>
+            <DashboardArea />
+          </Paper>
+        </Grid>
         <Grid className={classes.item} item xs={12} sm={12}>
           <Paper className={classes.paper}>
             <Typography className={classes.heading} variant="h5" align="center">

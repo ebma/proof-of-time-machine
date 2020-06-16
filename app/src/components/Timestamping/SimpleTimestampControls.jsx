@@ -1,9 +1,9 @@
-import React from "react";
-import { PropTypes } from "prop-types";
 import { drizzleReactHooks } from "@drizzle/react-plugin";
-import Box from "@material-ui/core/Box";
+import { Box, Button, Grid, TextField } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { Grid, TextField, Button } from "@material-ui/core";
+import Eth from "ethjs";
+import { PropTypes } from "prop-types";
+import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,28 +27,37 @@ function SimpleTimestampControls(props) {
   const classes = useStyles();
 
   const { drizzle } = drizzleReactHooks.useDrizzle();
+  const { web3 } = drizzle;
 
-  const [hash, setHash] = React.useState("");
-  const [signedHash, setSignedHash] = React.useState();
+  const [fileContent, setFileContent] = React.useState("");
+  const [signedHash, setSignedHash] = React.useState("");
 
-  const onCreateHash = React.useCallback(() => {
+  React.useEffect(() => {
     const reader = new FileReader();
 
     reader.onabort = () => console.log("file reading was aborted");
     reader.onerror = () => console.log("file reading has failed");
     reader.onload = () => {
-      const fileContent = reader.result;
-      const hash = drizzle.web3.utils.sha3(fileContent);
-      setHash(hash);
+      setFileContent(reader.result);
     };
     reader.readAsText(file);
-  }, [drizzle.web3.utils, file]);
+  }, [file]);
 
   const onSignHash = React.useCallback(() => {
-    drizzle.web3.eth.personal
-      .sign(hash, drizzle.web3.eth.defaultAccount)
-      .then(setSignedHash);
-  }, [drizzle.web3.eth.defaultAccount, drizzle.web3.eth.personal, hash]);
+    const eth = new Eth(web3.givenProvider);
+
+    eth.personal_sign(fileContent, web3.eth.defaultAccount).then(setSignedHash);
+  }, [fileContent, web3.eth.defaultAccount, web3.givenProvider]);
+
+  const onCreateTimestamp = React.useCallback(() => {
+    const stackId = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(
+      signedHash,
+      false,
+      { gas: 1000000 }
+    );
+
+    console.log("stackID", stackId);
+  }, [drizzle.contracts.TimestampFactory.methods, signedHash]);
 
   return (
     <Box className={classes.root} display="flex" flexDirection="row">
@@ -57,27 +66,20 @@ function SimpleTimestampControls(props) {
           <TextField
             className={classes.textField}
             disabled={true}
-            fullWidth
-            label="Hash"
-            value={hash}
-          />
-          <Button className={classes.button} onClick={onCreateHash}>
-            Create hash
-          </Button>
-        </Grid>
-        <Grid className={classes.item} item sm={12} xs={12}>
-          <TextField
-            className={classes.textField}
-            disabled={true}
-            label="Signed hash"
+            label="Your Signature"
             value={signedHash}
           />
           <Button
             className={classes.button}
-            disabled={!hash}
             onClick={onSignHash}
+            color="secondary"
           >
-            Sign hash
+            Sign Document
+          </Button>
+        </Grid>
+        <Grid className={classes.item} item sm={12} xs={12}>
+          <Button color="secondary" fullWidth onClick={onCreateTimestamp}>
+            Create timestamp
           </Button>
         </Grid>
       </Grid>
