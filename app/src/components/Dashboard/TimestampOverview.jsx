@@ -1,7 +1,6 @@
 import { drizzleReactHooks } from "@drizzle/react-plugin";
 import {
   Box,
-  Button,
   Divider,
   List,
   ListItem,
@@ -10,9 +9,9 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import SyncIcon from "@material-ui/icons/Sync";
 import PropTypes from "prop-types";
 import React from "react";
+import { AppContext } from "../../contexts/app";
 
 const useListStyles = makeStyles((theme) => ({
   root: {
@@ -30,25 +29,29 @@ function TimestampList(props) {
   const classes = useListStyles();
 
   const TimestampList = React.useMemo(() => {
-    return timestamps.map((timestamp, index) => (
-      <div key={timestamp.id}>
-        {index > 0 ? <Divider /> : undefined}
-        <ListItem>
-          <ListItemText
-            className={classes.text}
-            primary={timestamp.signedHash}
-            secondary={`IPFS?: ${timestamp.ipfs}`}
-            primaryTypographyProps={{
-              style: {
-                whiteSpace: "nowrap",
-                textOverflow: "ellipsis",
-                overflow: "hidden",
-              },
-            }}
-          />
-        </ListItem>
-      </div>
-    ));
+    return timestamps.length ? (
+      timestamps.map((timestamp, index) => (
+        <div key={timestamp.id}>
+          {index > 0 ? <Divider /> : undefined}
+          <ListItem>
+            <ListItemText
+              className={classes.text}
+              primary={timestamp.signedHash}
+              secondary={`IPFS?: ${timestamp.ipfs}`}
+              primaryTypographyProps={{
+                style: {
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis",
+                  overflow: "hidden",
+                },
+              }}
+            />
+          </ListItem>
+        </div>
+      ))
+    ) : (
+      <Typography>No timestamps found for your account...</Typography>
+    );
   }, [classes.text, timestamps]);
 
   return (
@@ -80,6 +83,9 @@ const useStyles = makeStyles((theme) => ({
 
 function TimestampOverview() {
   const classes = useStyles();
+
+  const { currentAccount } = React.useContext(AppContext);
+
   const [timestampByOwnerCallID, setTimestampsByOwnerCallID] = React.useState(
     undefined
   );
@@ -96,13 +102,15 @@ function TimestampOverview() {
     ...drizzleState.contracts.TimestampFactory,
   }));
 
-  const onFetch = React.useCallback(() => {
-    const callID = TimestampFactory.methods.getTimestampsByOwner.cacheCall(
-      window.web3.eth.defaultAccount
-    );
+  React.useEffect(() => {
+    if (currentAccount) {
+      const callID = TimestampFactory.methods.getTimestampsByOwner.cacheCall(
+        currentAccount
+      );
 
-    setTimestampsByOwnerCallID(callID);
-  }, [TimestampFactory.methods.getTimestampsByOwner]);
+      setTimestampsByOwnerCallID(callID);
+    }
+  }, [currentAccount, TimestampFactory.methods.getTimestampsByOwner]);
 
   React.useEffect(() => {
     const timestampIndices =
@@ -137,15 +145,6 @@ function TimestampOverview() {
     <Box align="center">
       <Box className={classes.box}>
         <Typography>Timestamps owned by your account:</Typography>
-        <Button
-          className={classes.button}
-          color="secondary"
-          startIcon={<SyncIcon />}
-          variant="contained"
-          onClick={onFetch}
-        >
-          Fetch
-        </Button>
       </Box>
       <TimestampList timestamps={selectedTimestamps} />
     </Box>

@@ -4,6 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Eth from "ethjs";
 import { PropTypes } from "prop-types";
 import React from "react";
+import { AppContext } from "../../contexts/app";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
 function SimpleTimestampControls(props) {
   const { file } = props;
   const classes = useStyles();
+  const { currentAccount } = React.useContext(AppContext);
 
   const { drizzle } = drizzleReactHooks.useDrizzle();
   const { web3 } = drizzle;
@@ -46,8 +48,8 @@ function SimpleTimestampControls(props) {
   const onSignHash = React.useCallback(() => {
     const eth = new Eth(web3.givenProvider);
 
-    eth.personal_sign(fileContent, web3.eth.defaultAccount).then(setSignedHash);
-  }, [fileContent, web3.eth.defaultAccount, web3.givenProvider]);
+    eth.personal_sign(fileContent, currentAccount).then(setSignedHash);
+  }, [fileContent, currentAccount, web3.givenProvider]);
 
   const onCreateTimestamp = React.useCallback(() => {
     const stackId = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(
