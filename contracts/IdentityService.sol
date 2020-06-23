@@ -46,4 +46,17 @@ contract IdentityService {
         return verifiersToClaim[_id][_verifier];
     }
 
+    function searchClaims(string memory _name_or_email) public view returns (int) {
+        for (uint i = 0; i < claims.length; i++) {
+            if (keccak256(abi.encodePacked(claims[i].name)) == keccak256(abi.encodePacked(_name_or_email)) ||
+                keccak256(abi.encodePacked(claims[i].email)) == keccak256(abi.encodePacked(_name_or_email))) {
+                return int(i);
+            }
+        }
+        return -1;
+    }
+
+    function getClaimCount() public view returns(uint count) {
+        return claims.length;
+    }
 }
