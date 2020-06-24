@@ -6,6 +6,7 @@ import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import IPFSTimestampControls from "./IPFSTimestampControls";
 import SimpleTimestampControls from "./SimpleTimestampControls";
 
 const useStyles = makeStyles((theme) => ({
@@ -67,11 +68,7 @@ function IPFSTimestampPanel(props) {
         </Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
-        <Typography>
-          Donec placerat, lectus sed mattis semper, neque lectus feugiat lectus,
-          varius pulvinar diam eros in elit. Pellentesque convallis laoreet
-          laoreet.
-        </Typography>
+        <IPFSTimestampControls file={props.file} />
       </ExpansionPanelDetails>
     </ExpansionPanel>
   );
