@@ -32,7 +32,7 @@ function SimpleTimestampControls(props) {
   const { web3 } = drizzle;
 
   const [fileContent, setFileContent] = React.useState("");
-  const [signedHash, setSignedHash] = React.useState("");
+  const [signature, setSignature] = React.useState("");
 
   React.useEffect(() => {
     const reader = new FileReader();
@@ -45,21 +45,21 @@ function SimpleTimestampControls(props) {
     reader.readAsText(file);
   }, [file]);
 
-  const onSignHash = React.useCallback(() => {
+  const onSignDocument = React.useCallback(() => {
     const eth = new Eth(web3.givenProvider);
 
-    eth.personal_sign(fileContent, currentAccount).then(setSignedHash);
+    eth.personal_sign(fileContent, currentAccount).then(setSignature);
   }, [fileContent, currentAccount, web3.givenProvider]);
 
   const onCreateTimestamp = React.useCallback(() => {
     const stackId = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(
-      signedHash,
-      false,
+      signature,
+      "",
       { gas: 1000000 }
     );
 
     console.log("stackID", stackId);
-  }, [drizzle.contracts.TimestampFactory.methods, signedHash]);
+  }, [drizzle.contracts.TimestampFactory.methods, signature]);
 
   return (
     <Box className={classes.root} display="flex" flexDirection="row">
@@ -69,11 +69,11 @@ function SimpleTimestampControls(props) {
             className={classes.textField}
             disabled={true}
             label="Your Signature"
-            value={signedHash}
+            value={signature}
           />
           <Button
             className={classes.button}
-            onClick={onSignHash}
+            onClick={onSignDocument}
             color="secondary"
           >
             Sign Document

@@ -31,13 +31,13 @@ function TimestampList(props) {
   const TimestampList = React.useMemo(() => {
     return timestamps.length ? (
       timestamps.map((timestamp, index) => (
-        <div key={timestamp.id}>
+        <div key={timestamp.id} style={{ width: "100%" }}>
           {index > 0 ? <Divider /> : undefined}
           <ListItem>
             <ListItemText
               className={classes.text}
-              primary={timestamp.signedHash}
-              secondary={`IPFS?: ${timestamp.ipfs}`}
+              primary={`Signature: ${timestamp.signature}`}
+              secondary={`CID: ${timestamp.ipfsCID}`}
               primaryTypographyProps={{
                 style: {
                   whiteSpace: "nowrap",

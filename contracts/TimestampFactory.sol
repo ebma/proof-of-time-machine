@@ -2,11 +2,11 @@
 pragma solidity >=0.5.0 <0.7.0;
 
 contract TimestampFactory {
-    event NewTimestamp(uint256 timestampId, string signedHash);
+    event NewTimestamp(uint256 timestampId, string signature);
 
     struct Timestamp {
-        string signedHash;
-        bool ipfs;
+        string signature;
+        string ipfsCID;
     }
 
     mapping(uint256 => address) public timestampToOwner;
@@ -14,13 +14,13 @@ contract TimestampFactory {
 
     Timestamp[] public timestamps;
 
-    function createTimestamp(string memory _signedHash, bool _ipfs) public {
-        Timestamp memory newTimestamp = Timestamp(_signedHash, _ipfs);
+    function createTimestamp(string memory _signature, string memory _ipfsCID) public {
+        Timestamp memory newTimestamp = Timestamp(_signature, _ipfsCID);
         timestamps.push(newTimestamp);
         uint256 id = timestamps.length - 1;
         timestampToOwner[id] = msg.sender;
         ownerTimestampCount[msg.sender]++;
-        emit NewTimestamp(id, _signedHash);
+        emit NewTimestamp(id, _signature);
     }
 
     function timestampCountOf(address _owner) external view returns (uint256) {
