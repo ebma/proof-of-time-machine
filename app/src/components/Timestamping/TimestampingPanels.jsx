@@ -1,11 +1,12 @@
-import React from "react";
-import { PropTypes } from "prop-types";
-import { makeStyles } from "@material-ui/core/styles";
 import ExpansionPanel from "@material-ui/core/ExpansionPanel";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
+import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { PropTypes } from "prop-types";
+import React from "react";
+import EncryptedIPFSTimestampControls from "./EncryptedIPFSTimestampControls";
 import IPFSTimestampControls from "./IPFSTimestampControls";
 import SimpleTimestampControls from "./SimpleTimestampControls";
 
@@ -99,11 +100,7 @@ function EncryptedIPFSTimestampPanel(props) {
         </Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
-        <Typography>
-          Donec placerat, lectus sed mattis semper, neque lectus feugiat lectus,
-          varius pulvinar diam eros in elit. Pellentesque convallis laoreet
-          laoreet.
-        </Typography>
+        <EncryptedIPFSTimestampControls file={props.file} />
       </ExpansionPanelDetails>
     </ExpansionPanel>
   );
