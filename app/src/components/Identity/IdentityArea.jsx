@@ -1,6 +1,9 @@
 import { drizzleReactHooks } from "@drizzle/react-plugin";
 import {
   Box,
+  Button,
+  TextField,
+  Grid,
   Divider,
   List,
   ListItem,
@@ -8,9 +11,8 @@ import {
   Paper,
   Typography,
 } from "@material-ui/core";
-import { makeStyles, responsiveFontSizes } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
-import { AppContext } from "../../contexts/app";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,16 +42,8 @@ function ClaimList(props) {
           {index > 0 ? <Divider /> : undefined}
           <ListItem>
             <ListItemText
-              className={classes.text}
               primary={`${claim.name} | ${claim.email}`}
               secondary={claim.pubkey}
-              primaryTypographyProps={{
-                style: {
-                  whiteSpace: "nowrap",
-                  textOverflow: "ellipsis",
-                  overflow: "hidden",
-                },
-              }}
             />
           </ListItem>
         </div>
@@ -71,7 +65,6 @@ function ClaimList(props) {
 function IdentityArea() {
   const classes = useStyles();
   const { drizzle } = drizzleReactHooks.useDrizzle();
-  const { currentAccount } = React.useContext(AppContext);
   const { IdentityService } = drizzle.contracts;
 
   const claimStore = drizzleReactHooks.useDrizzleState((drizzleState) => ({
@@ -99,14 +92,54 @@ function IdentityArea() {
     for (let i = 0; i < claimCount; i++) {
       IdentityService.methods.claims.cacheCall(i);
     }
-  }, [claimCount]);
+  }, [IdentityService.methods.claims, claimCount]);
 
   IdentityService.methods.getClaimCount.cacheCall();
 
+  const [name, setName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+
+  const handleNameChange = (e) => {
+    setName(e.target.value);
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
+  const handleCreateClaim = () => {
+    IdentityService.methods
+      .createClaim(name, email)
+      .send()
+      .on("transactionHash", (transactionHash) => {
+        alert("Success! TX Hash: " + transactionHash);
+      })
+      .on("error", (err) => {
+        alert(err.message);
+      });
+  };
+
   return (
     <Box align="center">
+      <Grid>
+        <TextField
+          label="Name"
+          variant="filled"
+          value={name}
+          onChange={handleNameChange}
+        />
+        <TextField
+          variant="filled"
+          label="Email"
+          value={email}
+          onChange={handleEmailChange}
+        />
+        <Button color="secondary" onClick={handleCreateClaim}>
+          Create Claim
+        </Button>
+      </Grid>
       <Box className={classes.box}>
-        <Typography>Claims:</Typography>
+        <Typography align="left">Claims:</Typography>
       </Box>
       <ClaimList claims={claims} />
     </Box>
@@ -114,9 +147,3 @@ function IdentityArea() {
 }
 
 export default IdentityArea;
-
-/*
-let instance = await IdentityService.deployed()
-let accounts = await web3.eth.getAccounts()
-instance.createClaim("paul", "paul@email.de", {from:accounts[0]})
-*/
