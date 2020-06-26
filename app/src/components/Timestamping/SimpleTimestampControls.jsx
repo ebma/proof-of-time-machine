@@ -33,6 +33,7 @@ function SimpleTimestampControls(props) {
 
   const [fileContent, setFileContent] = React.useState("");
   const [signature, setSignature] = React.useState("");
+  const [extra, setExtra] = React.useState("");
 
   React.useEffect(() => {
     const reader = new FileReader();
@@ -55,11 +56,12 @@ function SimpleTimestampControls(props) {
     const stackId = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(
       signature,
       "",
+      extra,
       { gas: 1000000 }
     );
 
     console.log("stackID", stackId);
-  }, [drizzle.contracts.TimestampFactory.methods, signature]);
+  }, [drizzle.contracts.TimestampFactory.methods, extra, signature]);
 
   return (
     <Box className={classes.root} display="flex" flexDirection="row">
@@ -78,6 +80,15 @@ function SimpleTimestampControls(props) {
           >
             Sign Document
           </Button>
+        </Grid>
+        <Grid className={classes.item} item sm={12} xs={12}>
+          <TextField
+            className={classes.textField}
+            label="(Optional) Extra"
+            placeholder={`Additional info (e.g. '${file.name}')`}
+            onChange={(event) => setExtra(event.target.value)}
+            value={extra}
+          />
         </Grid>
         <Grid className={classes.item} item sm={12} xs={12}>
           <Button color="secondary" fullWidth onClick={onCreateTimestamp}>

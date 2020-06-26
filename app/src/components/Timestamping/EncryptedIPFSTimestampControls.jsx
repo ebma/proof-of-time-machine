@@ -98,6 +98,7 @@ function EncryptedIPFSTimestampControls(props) {
   const [encryptedContent, setEncryptedContent] = React.useState(undefined);
   const [ipfsIdentifier, setIPFSIdentifier] = React.useState("");
   const [signature, setSignature] = React.useState("");
+  const [extra, setExtra] = React.useState("");
   const [privateKey, setPrivateKey] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [showContentDialog, setShowContentDialog] = React.useState(false);
@@ -151,10 +152,16 @@ function EncryptedIPFSTimestampControls(props) {
     const stackID = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(
       signature,
       ipfsIdentifier,
+      extra,
       { gas: 1000000 }
     );
     console.log(stackID);
-  }, [drizzle.contracts.TimestampFactory.methods, ipfsIdentifier, signature]);
+  }, [
+    drizzle.contracts.TimestampFactory.methods,
+    extra,
+    ipfsIdentifier,
+    signature,
+  ]);
 
   return (
     <Box className={classes.root} display="flex" flexDirection="row">
@@ -237,6 +244,15 @@ function EncryptedIPFSTimestampControls(props) {
               <CircularProgress size={24} className={classes.buttonProgress} />
             )}
           </div>
+        </Grid>
+        <Grid className={classes.item} item sm={12} xs={12}>
+          <TextField
+            className={classes.textField}
+            label="(Optional) Extra"
+            placeholder={`Additional info (e.g. '${file.name}')`}
+            onChange={(event) => setExtra(event.target.value)}
+            value={extra}
+          />
         </Grid>
         <Grid className={classes.item} item sm={12} xs={12}>
           <Button

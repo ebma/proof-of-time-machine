@@ -6,7 +6,8 @@ contract TimestampFactory {
 
     struct Timestamp {
         string signature;
-        string ipfsCID;
+        string cid;
+        string extra;
     }
 
     mapping(uint256 => address) public timestampToOwner;
@@ -14,8 +15,8 @@ contract TimestampFactory {
 
     Timestamp[] public timestamps;
 
-    function createTimestamp(string memory _signature, string memory _ipfsCID) public {
-        Timestamp memory newTimestamp = Timestamp(_signature, _ipfsCID);
+    function createTimestamp(string memory _signature, string memory _cid, string memory _extra) public {
+        Timestamp memory newTimestamp = Timestamp(_signature, _cid, _extra);
         timestamps.push(newTimestamp);
         uint256 id = timestamps.length - 1;
         timestampToOwner[id] = msg.sender;

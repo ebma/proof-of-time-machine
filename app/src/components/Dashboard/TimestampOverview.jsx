@@ -28,6 +28,14 @@ function TimestampList(props) {
   const { timestamps } = props;
   const classes = useListStyles();
 
+  const getSecondaryText = (timestamp) => {
+    let text = "";
+    text += timestamp.cid ? `CID: ${timestamp.cid}` : "";
+    text += timestamp.cid && timestamp.extra ? " | " : "";
+    text += timestamp.extra ? `Extra: ${timestamp.extra}` : "";
+    return text;
+  };
+
   const TimestampList = React.useMemo(() => {
     return timestamps.length ? (
       timestamps.map((timestamp, index) => (
@@ -37,7 +45,7 @@ function TimestampList(props) {
             <ListItemText
               className={classes.text}
               primary={`Signature: ${timestamp.signature}`}
-              secondary={`CID: ${timestamp.ipfsCID}`}
+              secondary={getSecondaryText(timestamp)}
               primaryTypographyProps={{
                 style: {
                   whiteSpace: "nowrap",
