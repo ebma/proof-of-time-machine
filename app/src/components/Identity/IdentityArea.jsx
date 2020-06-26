@@ -38,12 +38,12 @@ function ClaimList(props) {
   const ClaimList = React.useMemo(() => {
     return claims.length ? (
       claims.map((claim, index) => (
-        <div key={claim.pubkey}>
+        <div key={claim.ownerAddress}>
           {index > 0 ? <Divider /> : undefined}
           <ListItem>
             <ListItemText
               primary={`${claim.name} | ${claim.email}`}
-              secondary={claim.pubkey}
+              secondary={claim.ownerAddress}
             />
           </ListItem>
         </div>

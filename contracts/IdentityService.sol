@@ -1,10 +1,10 @@
 pragma solidity >=0.5.0 <0.7.0;
 
 contract IdentityService {
-    event newClaimCreated (uint id, address owner, string name, string email);
+    event newClaimCreated(uint256 id, address owner, string name, string email);
 
     struct Claim {
-        address pubkey;
+        address ownerAddress;
         string name;
         string email;
     }
@@ -16,47 +16,72 @@ contract IdentityService {
     mapping(address => uint256) public claimOwnerVerifiedCount;
     mapping(uint256 => mapping(address => bool)) public verifiersToClaim;
 
-
     function createClaim(string memory _name, string memory _email) public {
-        require(userToClaimCreated[msg.sender] == false,'Claim already Created');
-        Claim memory newClaim = Claim(msg.sender,_name,_email);
+        require(
+            userToClaimCreated[msg.sender] == false,
+            "Claim already Created"
+        );
+        Claim memory newClaim = Claim(msg.sender, _name, _email);
         claims.push(newClaim);
         uint256 id = claims.length - 1;
         userToClaim[msg.sender] = id;
         userToClaimCreated[msg.sender] = true;
-        emit newClaimCreated(id,msg.sender,_name,_email);
+        emit newClaimCreated(id, msg.sender, _name, _email);
     }
 
     function verifyClaim(address _owner) public {
         uint256 claimId = userToClaim[_owner];
-        require(verifiersToClaim[claimId][msg.sender] == false,'This account already verified the claim');
+        require(
+            verifiersToClaim[claimId][msg.sender] == false,
+            "This account already verified the claim"
+        );
         claimOwnerVerifiedCount[_owner]++;
         verifiersToClaim[claimId][msg.sender] = true;
     }
 
-    function getUserClaimId(address _claimOwner) external view returns (uint256){
+    function getUserClaimId(address _claimOwner)
+        external
+        view
+        returns (uint256)
+    {
         return userToClaim[_claimOwner];
     }
 
-    function getClaimVerifiedCount(address _claimOwner) external view returns (uint256){
+    function getClaimVerifiedCount(address _claimOwner)
+        external
+        view
+        returns (uint256)
+    {
         return claimOwnerVerifiedCount[_claimOwner];
     }
 
-    function getVerifiersToClaim(uint256 _id, address _verifier) external view returns (bool){
+    function getVerifiersToClaim(uint256 _id, address _verifier)
+        external
+        view
+        returns (bool)
+    {
         return verifiersToClaim[_id][_verifier];
     }
 
-    function searchClaims(string memory _name_or_email) public view returns (int) {
-        for (uint i = 0; i < claims.length; i++) {
-            if (keccak256(abi.encodePacked(claims[i].name)) == keccak256(abi.encodePacked(_name_or_email)) ||
-                keccak256(abi.encodePacked(claims[i].email)) == keccak256(abi.encodePacked(_name_or_email))) {
-                return int(i);
+    function searchClaims(string memory _name_or_email)
+        public
+        view
+        returns (int256)
+    {
+        for (uint256 i = 0; i < claims.length; i++) {
+            if (
+                keccak256(abi.encodePacked(claims[i].name)) ==
+                keccak256(abi.encodePacked(_name_or_email)) ||
+                keccak256(abi.encodePacked(claims[i].email)) ==
+                keccak256(abi.encodePacked(_name_or_email))
+            ) {
+                return int256(i);
             }
         }
         return -1;
     }
 
-    function getClaimCount() public view returns(uint count) {
+    function getClaimCount() public view returns (uint256 count) {
         return claims.length;
     }
 }
