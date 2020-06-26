@@ -57,7 +57,7 @@ function SimpleTimestampControls(props) {
       signature,
       "",
       extra,
-      { gas: 1000000 }
+      { gas: 500000 }
     );
 
     console.log("stackID", stackId);
