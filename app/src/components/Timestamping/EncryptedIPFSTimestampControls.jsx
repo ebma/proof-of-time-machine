@@ -1,9 +1,17 @@
 import { drizzleReactHooks } from "@drizzle/react-plugin";
-import { Box, Button, Grid, TextField } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { red } from "@material-ui/core/colors";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Grid from "@material-ui/core/Grid";
+import Slide from "@material-ui/core/Slide";
 import { makeStyles } from "@material-ui/core/styles";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import TextField from "@material-ui/core/TextField";
 import EthCrypto from "eth-crypto";
 import Eth from "ethjs";
 import { PropTypes } from "prop-types";
@@ -25,6 +33,10 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
     position: "relative",
   },
+  button: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  },
   buttonProgress: {
     color: red[500],
     position: "absolute",
@@ -34,6 +46,45 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: -12,
   },
 }));
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+function EncryptedContentDialog(props) {
+  const { content, open, onClose } = props;
+  return (
+    <Dialog
+      open={open}
+      TransitionComponent={Transition}
+      keepMounted
+      onClose={onClose}
+      aria-labelledby="alert-dialog-slide-title"
+      aria-describedby="alert-dialog-slide-description"
+    >
+      <DialogTitle id="alert-dialog-slide-title">Encrypted Content</DialogTitle>
+      <DialogContent>
+        <DialogContentText
+          id="alert-dialog-slide-description"
+          style={{ overflowWrap: "break-word" }}
+        >
+          {content}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+EncryptedContentDialog.propTypes = {
+  content: PropTypes.any,
+  open: PropTypes.bool,
+  onClose: PropTypes.func,
+};
 
 function EncryptedIPFSTimestampControls(props) {
   const { file } = props;
@@ -49,6 +100,7 @@ function EncryptedIPFSTimestampControls(props) {
   const [signature, setSignature] = React.useState("");
   const [privateKey, setPrivateKey] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [showContentDialog, setShowContentDialog] = React.useState(false);
 
   React.useEffect(() => {
     const reader = new FileReader();
@@ -106,6 +158,11 @@ function EncryptedIPFSTimestampControls(props) {
 
   return (
     <Box className={classes.root} display="flex" flexDirection="row">
+      <EncryptedContentDialog
+        open={showContentDialog}
+        content={encryptedContent}
+        onClose={() => setShowContentDialog(false)}
+      />
       <Grid display="flex" container spacing={3}>
         <Grid className={classes.item} item sm={12} xs={12}>
           <TextField
@@ -116,6 +173,7 @@ function EncryptedIPFSTimestampControls(props) {
             onChange={(event) => setPrivateKey(event.target.value)}
           />
           <Button
+            className={classes.button}
             variant="outlined"
             color="secondary"
             disabled={loading}
@@ -124,9 +182,14 @@ function EncryptedIPFSTimestampControls(props) {
             Encrypt document with this key
           </Button>
           {encryptedContent ? (
-            <CheckCircleIcon
-              style={{ alignSelf: "center", fill: "green", fontSize: 40 }}
-            />
+            <Button
+              className={classes.button}
+              color="secondary"
+              variant="outlined"
+              onClick={() => setShowContentDialog(true)}
+            >
+              View
+            </Button>
           ) : undefined}
         </Grid>
         <Grid className={classes.item} item sm={12} xs={12}>
@@ -139,6 +202,7 @@ function EncryptedIPFSTimestampControls(props) {
 
           <div className={classes.wrapper}>
             <Button
+              className={classes.button}
               variant="outlined"
               color="secondary"
               disabled={loading || !Boolean(encryptedContent)}
@@ -161,6 +225,7 @@ function EncryptedIPFSTimestampControls(props) {
 
           <div className={classes.wrapper}>
             <Button
+              className={classes.button}
               variant="outlined"
               color="secondary"
               disabled={loading || !Boolean(ipfsIdentifier)}
