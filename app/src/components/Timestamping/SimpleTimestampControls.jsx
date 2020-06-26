@@ -41,9 +41,10 @@ function SimpleTimestampControls(props) {
     reader.onabort = () => console.log("file reading was aborted");
     reader.onerror = () => console.log("file reading has failed");
     reader.onload = () => {
-      setFileContent(reader.result);
+      const buffer = Buffer.from(reader.result);
+      setFileContent(buffer.toString());
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
   }, [file]);
 
   const onSignDocument = React.useCallback(() => {

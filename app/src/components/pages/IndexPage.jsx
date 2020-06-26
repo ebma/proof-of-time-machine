@@ -9,6 +9,7 @@ import DashboardArea from "../Dashboard/DashboardArea";
 import Footer from "../Footer";
 import Header from "../Header";
 import IdentityArea from "../Identity/IdentityArea";
+import ValidatingArea from "../Validating/ValidatingArea";
 import TimestampingArea from "../Timestamping/TimestampingArea";
 
 const useStyles = makeStyles((theme) => ({
@@ -52,6 +53,14 @@ function IndexPage(props) {
               Timestamping
             </Typography>
             <TimestampingArea />
+          </Paper>
+        </Grid>
+        <Grid className={classes.item} item xs={12} sm={12}>
+          <Paper className={classes.paper}>
+            <Typography className={classes.heading} variant="h5" align="center">
+              Validating
+            </Typography>
+            <ValidatingArea />
           </Paper>
         </Grid>
         <Grid className={classes.item} item xs={12} sm={12}>

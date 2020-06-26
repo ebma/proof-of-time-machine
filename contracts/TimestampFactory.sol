@@ -47,4 +47,8 @@ contract TimestampFactory {
         }
         return result;
     }
+
+    function getTimestampCount() external view returns (uint256 count) {
+        return timestamps.length;
+    }
 }
