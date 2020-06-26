@@ -110,7 +110,7 @@ function IdentityArea() {
   const handleCreateClaim = () => {
     IdentityService.methods
       .createClaim(name, email)
-      .send()
+      .send({ gas: 400000 })
       .on("transactionHash", (transactionHash) => {
         alert("Success! TX Hash: " + transactionHash);
       })
