@@ -1,6 +1,7 @@
 import { drizzleReactHooks } from "@drizzle/react-plugin";
 import {
   Box,
+  Button,
   Divider,
   List,
   ListItem,
@@ -12,6 +13,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
 import React from "react";
 import { AppContext } from "../../contexts/app";
+import TimestampDetailsDialog from "./TimestampDetailsDialog";
 
 const useListStyles = makeStyles((theme) => ({
   root: {
@@ -25,7 +27,7 @@ const useListStyles = makeStyles((theme) => ({
 }));
 
 function TimestampList(props) {
-  const { timestamps } = props;
+  const { openDetails, timestamps } = props;
   const classes = useListStyles();
 
   const getSecondaryText = (timestamp) => {
@@ -54,13 +56,16 @@ function TimestampList(props) {
                 },
               }}
             />
+            <Button color="secondary" onClick={() => openDetails(timestamp)}>
+              Details
+            </Button>
           </ListItem>
         </div>
       ))
     ) : (
       <Typography>No timestamps found for your account...</Typography>
     );
-  }, [classes.text, timestamps]);
+  }, [classes.text, openDetails, timestamps]);
 
   return (
     <Paper>
@@ -72,6 +77,7 @@ function TimestampList(props) {
 }
 
 TimestampList.propTypes = {
+  openDetails: PropTypes.func.isRequired,
   timestamps: PropTypes.array.isRequired,
 };
 
@@ -102,6 +108,7 @@ function TimestampOverview() {
     setSelectedTimestampCallIDs,
   ] = React.useState([]);
   const [selectedTimestamps, setSelectedTimestamps] = React.useState([]);
+  const [detailedTimestamp, setDetailedTimestamp] = React.useState(undefined);
 
   const { drizzle } = drizzleReactHooks.useDrizzle();
   const { TimestampFactory } = drizzle.contracts;
@@ -142,19 +149,37 @@ function TimestampOverview() {
     for (const timestampCallID of selectedTimestampCallIDs) {
       const timestamp = timestampStore.timestamps[timestampCallID];
       if (timestamp) {
-        const timestampWithID = { ...timestamp.value, id: timestampCallID };
+        const timestampWithID = {
+          ...timestamp.value,
+          id: timestamp.args[0],
+          callID: timestampCallID,
+        };
         augmentedTimestamps.push(timestampWithID);
       }
     }
     setSelectedTimestamps(augmentedTimestamps);
   }, [selectedTimestampCallIDs, timestampStore.timestamps]);
 
+  const openDetails = React.useCallback((timestamp) => {
+    setDetailedTimestamp(timestamp);
+  }, []);
+
+  console.log("timestampstore", timestampStore);
+
   return (
     <Box align="center">
       <Box className={classes.box}>
         <Typography>Timestamps owned by your account:</Typography>
       </Box>
-      <TimestampList timestamps={selectedTimestamps} />
+      <TimestampList
+        openDetails={openDetails}
+        timestamps={selectedTimestamps}
+      />
+      <TimestampDetailsDialog
+        timestamp={detailedTimestamp}
+        open={Boolean(detailedTimestamp)}
+        onClose={() => setDetailedTimestamp(undefined)}
+      />
     </Box>
   );
 }
