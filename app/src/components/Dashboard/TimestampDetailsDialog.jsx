@@ -1,4 +1,4 @@
-import { Divider, Grid, TextField, Typography } from "@material-ui/core";
+import { Divider, Grid, TextField } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { red } from "@material-ui/core/colors";
@@ -14,67 +14,7 @@ import mime from "mime-types";
 import { PropTypes } from "prop-types";
 import React from "react";
 import { AppContext } from "../../contexts/app";
-
-const infoStyles = makeStyles((theme) => ({
-  typographyItem: {
-    width: "100%",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    wordBreak: "break-word",
-  },
-}));
-
-function TimestampDetailsInfo({ timestamp }) {
-  const classes = infoStyles();
-  return (
-    <Grid container>
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <Typography variant="body1" align="right">
-            <b>ID</b>
-          </Typography>
-        </Grid>
-        <Grid className={classes.typographyItem} item xs={9}>
-          <Typography variant="body1">{timestamp.id}</Typography>
-        </Grid>
-      </Grid>
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <Typography variant="body1" align="right">
-            <b>Signature</b>
-          </Typography>
-        </Grid>
-        <Grid className={classes.typographyItem} item xs={9}>
-          <Typography variant="body1">{timestamp.signature}</Typography>
-        </Grid>
-      </Grid>
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <Typography variant="body1" align="right">
-            <b>Content Identifier</b>
-          </Typography>
-        </Grid>
-        <Grid className={classes.typographyItem} item xs={9}>
-          <Typography variant="body1">
-            {timestamp.cid ? timestamp.cid : "-"}
-          </Typography>
-        </Grid>
-      </Grid>
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <Typography variant="body1" align="right">
-            <b>Extra</b>
-          </Typography>
-        </Grid>
-        <Grid className={classes.typographyItem} item xs={9}>
-          <Typography variant="body1">
-            {timestamp.extra ? timestamp.extra : "-"}
-          </Typography>
-        </Grid>
-      </Grid>
-    </Grid>
-  );
-}
+import TimestampDetails from "../Timestamping/TimestampDetails";
 
 const fileRetrievalStyles = makeStyles((theme) => ({
   button: {
@@ -263,7 +203,7 @@ function TimestampDetailsDialog(props) {
             Timestamp Details
           </DialogTitle>
           <DialogContent className={classes.root}>
-            <TimestampDetailsInfo timestamp={timestamp} />
+            <TimestampDetails timestamp={timestamp} />
             <Divider style={{ marginTop: 8, marginBottom: 8 }} />
             {timestamp.cid ? (
               <FileRetrievalArea cid={timestamp.cid} />
