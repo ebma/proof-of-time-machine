@@ -1,4 +1,4 @@
-import { Grid, TextField } from "@material-ui/core";
+import { Grid, TextField, Typography } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { red } from "@material-ui/core/colors";
@@ -113,30 +113,41 @@ function FileRetrievalArea({ cid }) {
           )}
         </div>
       </Grid>
-      <Grid className={classes.gridItem} item xs={12}>
-        <TextField
-          className={classes.textField}
-          disabled={!downloadedData}
-          label="Decryption key"
-          placeholder="E..."
-          onChange={(event) => setPrivateKey(event.target.value)}
-          value={privateKey}
-        />
-
-        <div className={classes.wrapper}>
-          <Button
-            className={classes.button}
-            variant="outlined"
-            color="secondary"
-            disabled={loading || !downloadedData || !privateKey}
-            onClick={decryptContent}
-            endIcon={decryptedContent ? <CheckIcon /> : undefined}
-          >
-            Decrypt
-          </Button>
-          {loading && downloadedData && (
-            <CircularProgress size={36} className={classes.buttonProgress} />
-          )}
+      <Grid
+        className={classes.gridItem}
+        item
+        xs={12}
+        style={{ flexDirection: "column" }}
+      >
+        <Typography variant="body1">
+          <b>OPTIONAL:</b> In case you encrypted this file before uploading you
+          can decrypt it with the private key of the account that was used for
+          encryption.
+        </Typography>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <TextField
+            className={classes.textField}
+            disabled={!downloadedData}
+            label="Decryption key"
+            placeholder="E..."
+            onChange={(event) => setPrivateKey(event.target.value)}
+            value={privateKey}
+          />
+          <div className={classes.wrapper}>
+            <Button
+              className={classes.button}
+              variant="outlined"
+              color="secondary"
+              disabled={loading || !downloadedData || !privateKey}
+              onClick={decryptContent}
+              endIcon={decryptedContent ? <CheckIcon /> : undefined}
+            >
+              Decrypt
+            </Button>
+            {loading && downloadedData && (
+              <CircularProgress size={36} className={classes.buttonProgress} />
+            )}
+          </div>
         </div>
       </Grid>
       <Grid className={classes.gridItem} item xs={12}>

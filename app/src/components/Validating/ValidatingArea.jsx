@@ -150,6 +150,7 @@ function ValidatingArea() {
                 ? "Invalid Timestamp ID"
                 : "Timestamp ID"
             }
+            fullWidth
             variant="filled"
             value={timestampId}
             onChange={onTimestampIdChange}
@@ -157,6 +158,7 @@ function ValidatingArea() {
         </Grid>
         <Grid item xs={9}>
           <TextField
+            fullWidth
             className={classes.root}
             variant="filled"
             label="Public Address that signed the document"

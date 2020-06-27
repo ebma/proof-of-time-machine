@@ -9,7 +9,8 @@ const useStyles = makeStyles((theme) => ({
   buttonContainer: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: theme.spacing(2),
   },
   root: {
@@ -64,11 +65,13 @@ function ShareArea({ timestamp }) {
         </Button>
         {success !== undefined ? (
           success === true ? (
-            <Typography variant="body1">
+            <Typography variant="body1" style={{ marginLeft: 8 }}>
               Successfully copied to clipboard!
             </Typography>
           ) : (
-            <Typography variant="body1">Something went wrong...</Typography>
+            <Typography variant="body1" style={{ marginLeft: 8 }}>
+              Something went wrong...
+            </Typography>
           )
         ) : undefined}
       </div>
