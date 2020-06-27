@@ -13,7 +13,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
 import React from "react";
 import { AppContext } from "../../contexts/app";
-import TimestampDetailsDialog from "./TimestampDetailsDialog";
+import TimestampDetailsDialog from "../TimestampDetails/TimestampDetailsDialog";
 
 const useListStyles = makeStyles((theme) => ({
   root: {

@@ -6,7 +6,7 @@ import Eth from "ethjs";
 import React from "react";
 import { AppContext } from "../../contexts/app";
 import CustomDropzone from "../Timestamping/Dropzone";
-import TimestampDetails from "../Timestamping/TimestampDetails";
+import TimestampDetails from "../TimestampDetails/TimestampDetails";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -131,7 +131,7 @@ function ValidatingArea() {
       <Grid container spacing={1}>
         <Grid item xs={3}>
           <TextField
-            error={timestampId && timestampId >= timestampCount}
+            error={Boolean(timestampId) && timestampId >= timestampCount}
             label={
               timestampId >= timestampCount
                 ? "Invalid Timestamp ID"
