@@ -1,17 +1,12 @@
 import { drizzleReactHooks } from "@drizzle/react-plugin";
-import React from "react";
-import {
-  Button,
-  TextField,
-  Grid,
-  Typography
-} from "@material-ui/core";
-import EthCrypto from "eth-crypto";
-import CustomDropzone from "../Timestamping/Dropzone";
+import { Button, Grid, TextField, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import BufferList from "bl/BufferList";
-import { AppContext } from "../../contexts/app";
 import Eth from "ethjs";
+import React from "react";
+import { AppContext } from "../../contexts/app";
+import CustomDropzone from "../Timestamping/Dropzone";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
@@ -30,56 +25,39 @@ function ValidatingArea() {
     ...drizzleState.contracts.TimestampFactory,
   }));
 
-  const [timestamps, setTimestamps] = React.useState([]);
+  const [timestampId, setTimestampId] = React.useState("");
+  const [selectedTimestamp, setSelectedTimestamp] = React.useState(undefined);
   const [timestampCount, setTimestampCount] = React.useState(0);
 
-  React.useMemo(() => {
-    let timestampArr = [];
-    for (let key in timestampStore.timestamps) {
-      timestampArr.push(timestampStore.timestamps[key].value);
-    }
-    setTimestamps(timestampArr);
-  }, [timestampStore.timestamps]);
-
-  React.useMemo(() => {
-    if ("0x0" in timestampStore.getTimestampCount) {
-      setTimestampCount(parseInt(timestampStore.getTimestampCount["0x0"].value));
-    }
-  }, [timestampStore.getTimestampCount]);
-
-  TimestampFactory.methods.getTimestampCount.cacheCall();
-
-  const [timestampId, setTimestampId] = React.useState("");
   const [publicAddress, setPublicAddress] = React.useState("");
-  const [privateKey, setPrivateKey] = React.useState("");
   const [file, setFile] = React.useState(undefined);
   const [fileContent, setFileContent] = React.useState(undefined);
-  const [claimValidString, setClaimValidString] = React.useState("");
+  const [validationSuccess, setValidationSuccess] = React.useState(undefined);
 
-  const onDrop = React.useCallback((acceptedFiles) => {
-    if (acceptedFiles.length) {
-      const selectedFile = acceptedFiles[0];
-      setFile(selectedFile);
+  React.useEffect(() => {
+    if (timestampId && timestampId < timestampCount) {
+      TimestampFactory.methods
+        .timestamps(timestampId)
+        .call()
+        .then(setSelectedTimestamp)
+        .catch(console.error);
+    } else {
+      setSelectedTimestamp(undefined);
     }
-  }, []);
+  }, [timestampId, TimestampFactory.methods, timestampCount]);
 
-  const onTimestampIdChange = (e) => {
-    setTimestampId(e.target.value);
-  };
-
-  const onPublicAddressChange = (e) => {
-    setPublicAddress(e.target.value);
-  };
-
-  const onPrivateKeyChange = (e) => {
-    setPrivateKey(e.target.value);
-  };
+  React.useEffect(() => {
+    if ("0x0" in timestampStore.getTimestampCount) {
+      setTimestampCount(
+        parseInt(timestampStore.getTimestampCount["0x0"].value)
+      );
+    }
+  }, [timestampStore.getTimestampCount]);
 
   React.useEffect(() => {
     if (!file) {
       return;
     }
-    console.log("reading file");
     const reader = new FileReader();
 
     reader.onabort = () => console.log("file reading was aborted");
@@ -91,71 +69,81 @@ function ValidatingArea() {
     reader.readAsArrayBuffer(file);
   }, [file]);
 
-  async function downloadIPFSFile(cid) {
-    let fileBuffer = new BufferList();
-    for await (const result of ipfsClient.get(cid)) {
-      for await (const chunk of result.content) {
-        fileBuffer.append(chunk);
-      }
-      return fileBuffer.toString();
-    }
-  }
+  TimestampFactory.methods.getTimestampCount.cacheCall();
 
-  const validateTimestamp = async () => {
-    if (timestampId >= timestampCount) {
-      alert("Invalid timestamp ID!");
-    } else {
-      let originalFile = fileContent;
-      if (timestamps[timestampId].cid) {
-        // file was uploaded to ipfs
-        originalFile = await downloadIPFSFile(timestamps[timestampId].cid);
-        if (privateKey) {
-          // private key given, so assume file was encrypted
-          EthCrypto.decryptWithPrivateKey(privateKey, fileContent)
-          .then(setFileContent);
+  const onDrop = React.useCallback((acceptedFiles) => {
+    if (acceptedFiles.length) {
+      const selectedFile = acceptedFiles[0];
+      setFile(selectedFile);
+    }
+  }, []);
+
+  const downloadIPFSFile = React.useCallback(
+    async (cid) => {
+      let fileBuffer = new BufferList();
+      for await (const result of ipfsClient.get(cid)) {
+        for await (const chunk of result.content) {
+          fileBuffer.append(chunk);
         }
-      } else if (!fileContent) {
-        setClaimValidString("Please provide a local file, as this file does not exist on IPFS.");
-        return;
+        return fileBuffer.toString();
       }
+    },
+    [ipfsClient]
+  );
 
-      const eth = new Eth(web3.givenProvider);
-      let recoveredAddress = "";
-      await eth.personal_ecRecover(originalFile, timestamps[timestampId].signature)
-        .then((returnedAddress) => {recoveredAddress = returnedAddress});
-
-      if (recoveredAddress === publicAddress) {
-        setClaimValidString("Timestamp was created by the given public address.");
-      } else {
-        setClaimValidString("Timestamp WAS NOT created by the given public address.");
-      }
+  const validateTimestamp = React.useCallback(async () => {
+    let originalFile = fileContent;
+    if (selectedTimestamp.cid) {
+      // file was uploaded to ipfs
+      originalFile = await downloadIPFSFile(selectedTimestamp.cid);
     }
+
+    const eth = new Eth(web3.givenProvider);
+    const recoveredAddress = await eth.personal_ecRecover(
+      originalFile,
+      selectedTimestamp.signature
+    );
+
+    if (recoveredAddress === publicAddress) {
+      setValidationSuccess(true);
+    } else {
+      setValidationSuccess(false);
+    }
+  }, [
+    downloadIPFSFile,
+    fileContent,
+    selectedTimestamp,
+    publicAddress,
+    web3.givenProvider,
+  ]);
+
+  const onTimestampIdChange = (e) => {
+    setTimestampId(e.target.value);
+  };
+
+  const onPublicAddressChange = (e) => {
+    setPublicAddress(e.target.value);
   };
 
   return (
     <div className={classes.root}>
-      <CustomDropzone
-        onDrop={onDrop}
-        text={file ? `Selected file: '${file.name}'` : undefined}
-      />
-      {file ? (
-        <Button onClick={() => {setFile(); setFileContent()}}>
-          Clear file
-        </Button>
-      ) : undefined}
-
-      <br/>
       <Grid container spacing={1}>
-        <Grid item xs={1}>
+        <Grid item xs={3}>
           <TextField
-            label="Timestamp ID"
+            error={timestampId >= timestampCount}
+            label={
+              timestampId >= timestampCount
+                ? "Invalid Timestamp ID"
+                : "Timestamp ID"
+            }
             variant="filled"
             value={timestampId}
             onChange={onTimestampIdChange}
           />
         </Grid>
-        <Grid item xs>
-          <TextField className={classes.root}
+        <Grid item xs={9}>
+          <TextField
+            className={classes.root}
             variant="filled"
             label="Public Address that signed the document"
             value={publicAddress}
@@ -163,23 +151,44 @@ function ValidatingArea() {
           />
         </Grid>
       </Grid>
-      <br />
       <Grid className={classes.root}>
-        <TextField className={classes.root}
-          variant="filled"
-          label="(Optional) Private Key that was used to encrypt the document"
-          value={privateKey}
-          onChange={onPrivateKeyChange}
-        />
+        {selectedTimestamp && !selectedTimestamp.cid ? (
+          <div style={{ padding: 16, marginTop: 16 }}>
+            <Typography align="center" variant="body1">
+              Please provide a local file as this timestamp does not specify a
+              content identifier...
+            </Typography>
+            <CustomDropzone
+              onDrop={onDrop}
+              text={file ? `Selected file: '${file.name}'` : undefined}
+            />
+          </div>
+        ) : undefined}
       </Grid>
-      <Button color="secondary"
-        disabled = {!publicAddress || !timestampId}
+      <Button
+        color="secondary"
+        disabled={
+          !publicAddress ||
+          !timestampId ||
+          timestampId >= timestampCount ||
+          (selectedTimestamp && !selectedTimestamp.cid && !file)
+        }
+        fullWidth
         onClick={validateTimestamp}
+        style={{ margin: 16 }}
       >
         Validate Timestamp
       </Button>
-      <Typography variant="body1">
-        {claimValidString}
+      <Typography
+        align="center"
+        variant="h6"
+        style={{ color: validationSuccess === true ? "green" : "red" }}
+      >
+        {validationSuccess !== undefined
+          ? validationSuccess === true
+            ? "Timestamp was created by the given public address."
+            : "Timestamp WAS NOT created by the given public address."
+          : undefined}
       </Typography>
     </div>
   );
