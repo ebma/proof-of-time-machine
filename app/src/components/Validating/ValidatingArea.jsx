@@ -36,6 +36,19 @@ function ValidatingArea() {
   const [validationSuccess, setValidationSuccess] = React.useState(undefined);
 
   React.useEffect(() => {
+    const url = new URL(window.location.href);
+    const id = url.searchParams.get("id");
+    if (id) {
+      setTimestampId(id);
+    }
+
+    const address = url.searchParams.get("address");
+    if (address) {
+      setPublicAddress(address);
+    }
+  }, []);
+
+  React.useEffect(() => {
     if (timestampId && timestampId < timestampCount) {
       TimestampFactory.methods
         .timestamps(timestampId)
