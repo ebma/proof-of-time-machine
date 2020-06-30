@@ -87,14 +87,12 @@ EncryptedContentDialog.propTypes = {
 };
 
 function EncryptedIPFSTimestampControls(props) {
-  const { file } = props;
   const classes = useStyles();
   const { currentAccount, ipfsClient } = React.useContext(AppContext);
 
   const { drizzle } = drizzleReactHooks.useDrizzle();
   const { web3 } = drizzle;
 
-  const [fileContentBuffer, setFileContentBuffer] = React.useState(undefined);
   const [encryptedContent, setEncryptedContent] = React.useState(undefined);
   const [ipfsIdentifier, setIPFSIdentifier] = React.useState("");
   const [signature, setSignature] = React.useState("");
@@ -103,30 +101,18 @@ function EncryptedIPFSTimestampControls(props) {
   const [loading, setLoading] = React.useState(false);
   const [showContentDialog, setShowContentDialog] = React.useState(false);
 
-  React.useEffect(() => {
-    const reader = new FileReader();
-
-    reader.onabort = () => console.log("file reading was aborted");
-    reader.onerror = () => console.log("file reading has failed");
-    reader.onload = () => {
-      const buffer = Buffer.from(reader.result);
-      setFileContentBuffer(buffer);
-    };
-    reader.readAsArrayBuffer(file);
-  }, [file]);
-
   const onEncryptDocument = React.useCallback(async () => {
     // see https://github.com/pubkey/eth-crypto#encryptwithpublickey
     const publicKey = EthCrypto.publicKeyByPrivateKey(privateKey);
     const encryptedContentObject = await EthCrypto.encryptWithPublicKey(
       publicKey,
-      fileContentBuffer.toString()
+      props.fileContent.toString()
     );
     const encryptedContentString = EthCrypto.cipher.stringify(
       encryptedContentObject
     );
     setEncryptedContent(encryptedContentString);
-  }, [fileContentBuffer, privateKey]);
+  }, [props.fileContent, privateKey]);
 
   const onUploadToIPFS = React.useCallback(async () => {
     if (encryptedContent) {
@@ -249,7 +235,7 @@ function EncryptedIPFSTimestampControls(props) {
           <TextField
             className={classes.textField}
             label="(Optional) Extra"
-            placeholder={`Additional info (e.g. '${file.name}')`}
+            placeholder={`Additional info (e.g. '${props.file.name}')`}
             onChange={(event) => setExtra(event.target.value)}
             value={extra}
           />
@@ -275,6 +261,7 @@ function EncryptedIPFSTimestampControls(props) {
 
 EncryptedIPFSTimestampControls.propTypes = {
   file: PropTypes.any.isRequired,
+  fileContent: PropTypes.any,
 };
 
 export default EncryptedIPFSTimestampControls;

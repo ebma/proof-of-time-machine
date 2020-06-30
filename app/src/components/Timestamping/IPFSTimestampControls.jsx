@@ -34,35 +34,21 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function IPFSTimestampControls(props) {
-  const { file } = props;
   const classes = useStyles();
   const { currentAccount, ipfsClient } = React.useContext(AppContext);
 
   const { drizzle } = drizzleReactHooks.useDrizzle();
   const { web3 } = drizzle;
 
-  const [fileContentBuffer, setFileContentBuffer] = React.useState(undefined);
   const [ipfsIdentifier, setIPFSIdentifier] = React.useState("");
   const [signature, setSignature] = React.useState("");
   const [extra, setExtra] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
-  React.useEffect(() => {
-    const reader = new FileReader();
-
-    reader.onabort = () => console.log("file reading was aborted");
-    reader.onerror = () => console.log("file reading has failed");
-    reader.onload = () => {
-      const buffer = Buffer.from(reader.result);
-      setFileContentBuffer(buffer);
-    };
-    reader.readAsArrayBuffer(file);
-  }, [file]);
-
   const onUploadToIPFS = React.useCallback(() => {
-    if (fileContentBuffer) {
+    if (props.fileContent) {
       const f = async () => {
-        for await (const result of ipfsClient.add(fileContentBuffer)) {
+        for await (const result of ipfsClient.add(props.fileContent)) {
           console.log("result", result);
           setIPFSIdentifier(result.path);
         }
@@ -72,15 +58,13 @@ function IPFSTimestampControls(props) {
         .catch(console.error)
         .finally(() => setLoading(false));
     }
-  }, [fileContentBuffer, ipfsClient]);
+  }, [props.fileContent, ipfsClient]);
 
   const onSignDocument = React.useCallback(() => {
     const eth = new Eth(web3.givenProvider);
 
-    const fileContent = fileContentBuffer.toString();
-
-    eth.personal_sign(fileContent, currentAccount).then(setSignature);
-  }, [currentAccount, fileContentBuffer, web3.givenProvider]);
+    eth.personal_sign(props.fileContent, currentAccount).then(setSignature);
+  }, [currentAccount, props.fileContent, web3.givenProvider]);
 
   const onCreateTimestamp = React.useCallback(() => {
     const stackID = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(
@@ -150,7 +134,7 @@ function IPFSTimestampControls(props) {
           <TextField
             className={classes.textField}
             label="(Optional) Extra"
-            placeholder={`Additional info (e.g. '${file.name}')`}
+            placeholder={`Additional info (e.g. '${props.file.name}')`}
             onChange={(event) => setExtra(event.target.value)}
             value={extra}
           />
@@ -172,6 +156,7 @@ function IPFSTimestampControls(props) {
 
 IPFSTimestampControls.propTypes = {
   file: PropTypes.any.isRequired,
+  fileContent: PropTypes.any,
 };
 
 export default IPFSTimestampControls;

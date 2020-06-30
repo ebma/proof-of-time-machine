@@ -24,34 +24,22 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function SimpleTimestampControls(props) {
-  const { file } = props;
   const classes = useStyles();
   const { currentAccount } = React.useContext(AppContext);
 
   const { drizzle } = drizzleReactHooks.useDrizzle();
   const { web3 } = drizzle;
 
-  const [fileContent, setFileContent] = React.useState("");
   const [signature, setSignature] = React.useState("");
   const [extra, setExtra] = React.useState("");
 
-  React.useEffect(() => {
-    const reader = new FileReader();
-
-    reader.onabort = () => console.log("file reading was aborted");
-    reader.onerror = () => console.log("file reading has failed");
-    reader.onload = () => {
-      const buffer = Buffer.from(reader.result);
-      setFileContent(buffer.toString());
-    };
-    reader.readAsArrayBuffer(file);
-  }, [file]);
-
   const onSignDocument = React.useCallback(() => {
     const eth = new Eth(web3.givenProvider);
+    // console.log(props.fileContent);
 
-    eth.personal_sign(fileContent, currentAccount).then(setSignature);
-  }, [fileContent, currentAccount, web3.givenProvider]);
+    // console.log(props.fileContent);
+    eth.personal_sign(props.fileContent, currentAccount).then(setSignature);
+  }, [props.fileContent, currentAccount, web3.givenProvider]);
 
   const onCreateTimestamp = React.useCallback(() => {
     const stackId = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(
@@ -86,7 +74,7 @@ function SimpleTimestampControls(props) {
           <TextField
             className={classes.textField}
             label="(Optional) Extra"
-            placeholder={`Additional info (e.g. '${file.name}')`}
+            placeholder={`Additional info (e.g. '${props.file.name}')`}
             onChange={(event) => setExtra(event.target.value)}
             value={extra}
           />
@@ -103,6 +91,7 @@ function SimpleTimestampControls(props) {
 
 SimpleTimestampControls.propTypes = {
   file: PropTypes.any.isRequired,
+  fileContent: PropTypes.any,
 };
 
 export default SimpleTimestampControls;

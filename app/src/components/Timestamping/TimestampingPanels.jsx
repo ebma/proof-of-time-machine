@@ -41,7 +41,7 @@ function SimpleTimestampPanel(props) {
         </Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
-        <SimpleTimestampControls file={props.file} />
+        <SimpleTimestampControls file={props.file} fileContent={props.fileContent} />
       </ExpansionPanelDetails>
     </ExpansionPanel>
   );
@@ -50,6 +50,7 @@ function SimpleTimestampPanel(props) {
 SimpleTimestampPanel.propTypes = {
   expanded: PropTypes.bool.isRequired,
   file: PropTypes.any,
+  fileContent: PropTypes.any,
   onChange: PropTypes.func,
 };
 
@@ -69,7 +70,7 @@ function IPFSTimestampPanel(props) {
         </Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
-        <IPFSTimestampControls file={props.file} />
+        <IPFSTimestampControls file={props.file} fileContent={props.fileContent} />
       </ExpansionPanelDetails>
     </ExpansionPanel>
   );
@@ -78,6 +79,7 @@ function IPFSTimestampPanel(props) {
 IPFSTimestampPanel.propTypes = {
   expanded: PropTypes.bool.isRequired,
   file: PropTypes.any,
+  fileContent: PropTypes.any,
   onChange: PropTypes.func,
 };
 
@@ -100,7 +102,7 @@ function EncryptedIPFSTimestampPanel(props) {
         </Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
-        <EncryptedIPFSTimestampControls file={props.file} />
+        <EncryptedIPFSTimestampControls file={props.file} fileContent={props.fileContent} />
       </ExpansionPanelDetails>
     </ExpansionPanel>
   );
@@ -109,11 +111,11 @@ function EncryptedIPFSTimestampPanel(props) {
 EncryptedIPFSTimestampPanel.propTypes = {
   expanded: PropTypes.bool.isRequired,
   file: PropTypes.any,
+  fileContent: PropTypes.any,
   onChange: PropTypes.func,
 };
 
 function TimestampingPanels(props) {
-  const { file } = props;
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
 
@@ -125,23 +127,29 @@ function TimestampingPanels(props) {
     <div className={classes.root}>
       <SimpleTimestampPanel
         expanded={expanded === "panel1"}
-        file={file}
+        file={props.file}
+        fileContent={props.fileContent}
         onChange={handleChange("panel1")}
       />
       <IPFSTimestampPanel
         expanded={expanded === "panel2"}
-        file={file}
+        file={props.file}
+        fileContent={props.fileContent}
         onChange={handleChange("panel2")}
       />
       <EncryptedIPFSTimestampPanel
         expanded={expanded === "panel3"}
-        file={file}
+        file={props.file}
+        fileContent={props.fileContent}
         onChange={handleChange("panel3")}
       />
     </div>
   );
 }
 
-TimestampingPanels.propTypes = { file: PropTypes.any.isRequired };
+TimestampingPanels.propTypes = {
+  file: PropTypes.any.isRequired,
+  fileContent: PropTypes.any
+};
 
 export default TimestampingPanels;

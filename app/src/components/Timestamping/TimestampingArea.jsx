@@ -14,6 +14,7 @@ function TimestampingArea() {
   const classes = useStyles();
 
   const [file, setFile] = React.useState(undefined);
+  const [fileContent, setFileContent] = React.useState(new ArrayBuffer());
 
   const onDrop = React.useCallback((acceptedFiles) => {
     if (acceptedFiles.length) {
@@ -21,6 +22,22 @@ function TimestampingArea() {
       setFile(selectedFile);
     }
   }, []);
+
+  React.useEffect(() => {
+    if (!file)
+      return
+
+    file.arrayBuffer().then((test) => {console.log(test, "finished"); setFileContent(test)});
+
+    // const reader = new FileReader();
+    // reader.onabort = () => console.log("file reading was aborted");
+    // reader.onerror = () => console.error("file reading has failed");
+    // reader.onload = () => {
+      // const buffer = Buffer.from(reader.result);
+      // setFileContent(buffer.toString());
+    // };
+    // reader.readAsArrayBuffer(file);
+  }, [file]);
 
   return (
     <div className={classes.root}>
@@ -31,7 +48,10 @@ function TimestampingArea() {
 
       {file ? (
         <Box style={{ padding: 16 }}>
-          <TimestampingPanels file={file} />
+          <TimestampingPanels
+            file={file}
+            fileContent={fileContent}
+          />
         </Box>
       ) : undefined}
     </div>
