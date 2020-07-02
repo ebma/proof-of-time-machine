@@ -42,7 +42,7 @@ function ClaimList(props) {
           {index > 0 ? <Divider /> : undefined}
           <ListItem>
             <ListItemText
-              primary={`${claim.name} | ${claim.email}`}
+              primary={`${claim.name} | ${claim.email} | Verified Count : ${claim.verifiedCount}`}
               secondary={claim.ownerAddress}
             />
           </ListItem>
@@ -98,6 +98,7 @@ function IdentityArea() {
 
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
+  const [claimOwner, setClaimOwner] = React.useState("");
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -116,6 +117,23 @@ function IdentityArea() {
       })
       .on("error", (err) => {
         alert(err.message);
+      });
+  };
+
+  const handleClaimOwner = (e) => {
+    setClaimOwner(e.target.value);
+  };
+
+  const handleVerifyClaim = () => {
+    console.log(claimOwner);
+    IdentityService.methods
+      .verifyClaim(claimOwner)
+      .send({ gas: 400000 })
+      .on("transactionHash", (transactionHash) => {
+        alert("Success! Claim Verified");
+      })
+      .on("error", (err) => {
+        alert("Claim Already Verified Once");
       });
   };
 
@@ -142,6 +160,18 @@ function IdentityArea() {
         <Typography align="left">Claims:</Typography>
       </Box>
       <ClaimList claims={claims} />
+
+      <Grid>
+        <TextField
+          label="Claim Owner Address"
+          variant="filled"
+          value={claimOwner}
+          onChange={handleClaimOwner}
+        />
+        <Button color="secondary" onClick={handleVerifyClaim}>
+          Verify Claim
+        </Button>
+      </Grid>
     </Box>
   );
 }
