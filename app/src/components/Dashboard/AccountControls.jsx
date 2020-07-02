@@ -7,9 +7,9 @@ function AccountControls() {
 
   const MetamaskInfo = React.useMemo(() => {
     return typeof window.ethereum === "undefined" ? (
-      <Typography variant="body1">
-        No Metamask plugin detected. Consider adding the Metamask extension to
-        your browser.
+      <Typography variant="h6" style={{ color: "red" }}>
+        No Metamask plugin detected. You must install the Metamask extension or
+        use the Brave Browser to use this application.
       </Typography>
     ) : undefined;
   }, []);
