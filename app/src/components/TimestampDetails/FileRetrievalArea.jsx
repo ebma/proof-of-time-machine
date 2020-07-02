@@ -2,8 +2,8 @@ import { Grid, TextField, Typography } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { red } from "@material-ui/core/colors";
+import Divider from "@material-ui/core/Divider";
 import { makeStyles } from "@material-ui/core/styles";
-import CheckIcon from "@material-ui/icons/Check";
 import EthCrypto from "eth-crypto";
 import mime from "mime-types";
 import React from "react";
@@ -13,7 +13,6 @@ const useStyles = makeStyles((theme) => ({
   button: {
     margin: theme.spacing(2),
   },
-
   buttonProgress: {
     color: red[500],
     position: "absolute",
@@ -28,21 +27,31 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
   },
   textField: {
+    alignSelf: "center",
     minWidth: 300,
+    maxWidth: 800,
   },
 }));
 
 function FileRetrievalArea({ cid }) {
   const classes = useStyles();
 
-  const [downloadedData, setDownloadedData] = React.useState(undefined);
-  const [decryptedContent, setDecryptedContent] = React.useState(undefined);
   const [mimeTypeInput, setMimeTypeInput] = React.useState("");
   const [mimeType, setMimeType] = React.useState(undefined);
   const [privateKey, setPrivateKey] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
   const { ipfsClient } = React.useContext(AppContext);
+
+  const openFile = React.useCallback(
+    (data) => {
+      // data has to be of type array
+      const blob = new Blob(data, { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      window.open(url);
+    },
+    [mimeType]
+  );
 
   const downloadContent = React.useCallback(async () => {
     setLoading(true);
@@ -52,14 +61,19 @@ function FileRetrievalArea({ cid }) {
     }
 
     setLoading(false);
-    setDownloadedData(chunks);
-  }, [cid, ipfsClient]);
+    openFile(chunks);
+  }, [cid, ipfsClient, openFile]);
 
-  const decryptContent = React.useCallback(async () => {
+  const downloadAndDecryptContent = React.useCallback(async () => {
     try {
       setLoading(true);
+
+      const chunks = [];
+      for await (const chunk of ipfsClient.cat(cid)) {
+        chunks.push(chunk);
+      }
       // use blob as workaround for parsing the downloaded data chunks
-      const blob = new Blob(downloadedData, { type: "" });
+      const blob = new Blob(chunks, { type: "" });
       const cipherString = await blob.text();
       const cipherObject = EthCrypto.cipher.parse(cipherString);
 
@@ -70,21 +84,13 @@ function FileRetrievalArea({ cid }) {
 
       console.log("decrypted", decrypted);
 
-      setDecryptedContent(decrypted);
+      openFile([decrypted]);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
-  }, [downloadedData, privateKey]);
-
-  const openFile = React.useCallback(() => {
-    // data has to be of type array
-    const data = decryptedContent ? [decryptedContent] : downloadedData;
-    const blob = new Blob(data, { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    window.open(url);
-  }, [decryptedContent, downloadedData, mimeType]);
+  }, [cid, ipfsClient, openFile, privateKey]);
 
   const handleMimeTypeChange = React.useCallback((event) => {
     const input = event.target.value;
@@ -96,38 +102,57 @@ function FileRetrievalArea({ cid }) {
 
   return (
     <Grid container spacing={2}>
-      <Grid className={classes.gridItem} item xs={12}>
-        <div className={classes.wrapper}>
-          <Button
-            className={classes.button}
-            variant="outlined"
-            color="secondary"
-            disabled={loading || Boolean(downloadedData)}
-            onClick={downloadContent}
-            endIcon={downloadedData ? <CheckIcon /> : undefined}
-          >
-            Download
-          </Button>
-          {loading && !downloadedData && (
-            <CircularProgress size={36} className={classes.buttonProgress} />
-          )}
-        </div>
-      </Grid>
       <Grid
         className={classes.gridItem}
         item
         xs={12}
         style={{ flexDirection: "column" }}
       >
+        <Typography align="center" variant="body1">
+          Please enter the file extension of the file that you want to recover
+          below.
+        </Typography>
+        <TextField
+          className={classes.textField}
+          error={mimeType === false}
+          label={`File Extension (${mimeType ? mimeType : "Not found"})`}
+          onChange={handleMimeTypeChange}
+          placeholder="e.g. '.jpg'"
+          value={mimeTypeInput}
+        />
+      </Grid>
+      <Grid className={classes.gridItem} item xs={5}>
+        <div className={classes.wrapper}>
+          <Button
+            className={classes.button}
+            variant="outlined"
+            color="secondary"
+            disabled={loading || !Boolean(mimeType)}
+            onClick={downloadContent}
+          >
+            Download
+          </Button>
+          {loading && (
+            <CircularProgress size={36} className={classes.buttonProgress} />
+          )}
+        </div>
+      </Grid>
+      <Grid className={classes.gridItem} item xs={1}>
+        <Divider orientation="vertical" flexItem />
+      </Grid>
+      <Grid
+        className={classes.gridItem}
+        item
+        xs={6}
+        style={{ flexDirection: "column" }}
+      >
         <Typography variant="body1">
-          <b>OPTIONAL:</b> In case you encrypted this file before uploading you
-          can decrypt it with the private key of the account that was used for
-          encryption.
+          In case you encrypted this file before uploading you can decrypt it
+          with the private key of the account that was used for encryption.
         </Typography>
         <div style={{ display: "flex", justifyContent: "center" }}>
           <TextField
             className={classes.textField}
-            disabled={!downloadedData}
             label="Decryption key"
             placeholder="E..."
             onChange={(event) => setPrivateKey(event.target.value)}
@@ -138,37 +163,16 @@ function FileRetrievalArea({ cid }) {
               className={classes.button}
               variant="outlined"
               color="secondary"
-              disabled={loading || !downloadedData || !privateKey}
-              onClick={decryptContent}
-              endIcon={decryptedContent ? <CheckIcon /> : undefined}
+              disabled={loading || !Boolean(mimeType) || !privateKey}
+              onClick={downloadAndDecryptContent}
             >
-              Decrypt
+              Download and Decrypt
             </Button>
-            {loading && downloadedData && (
+            {loading && (
               <CircularProgress size={36} className={classes.buttonProgress} />
             )}
           </div>
         </div>
-      </Grid>
-      <Grid className={classes.gridItem} item xs={12}>
-        <TextField
-          className={classes.textField}
-          disabled={!downloadedData}
-          error={mimeType === false}
-          label={`MIME Type (${mimeType ? mimeType : "Not found"})`}
-          onChange={handleMimeTypeChange}
-          placeholder="e.g. 'application/pdf'"
-          value={mimeTypeInput}
-        />
-        <Button
-          className={classes.button}
-          color="secondary"
-          disabled={!downloadedData || !mimeType}
-          onClick={openFile}
-          variant="outlined"
-        >
-          Save
-        </Button>
       </Grid>
     </Grid>
   );

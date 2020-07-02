@@ -50,7 +50,7 @@ function TimestampDetailsDialog(props) {
             <ShareArea timestamp={timestamp} />
             {timestamp.cid ? (
               <>
-                <Divider style={{ marginTop: 8, marginBottom: 8 }} />
+                <Divider style={{ marginTop: 16, marginBottom: 16 }} />
                 <FileRetrievalArea cid={timestamp.cid} />
               </>
             ) : undefined}
