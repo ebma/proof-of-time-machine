@@ -13,7 +13,6 @@ import Slide from "@material-ui/core/Slide";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import EthCrypto from "eth-crypto";
-import Eth from "ethjs";
 import { PropTypes } from "prop-types";
 import React from "react";
 import { AppContext } from "../../contexts/app";
@@ -129,10 +128,8 @@ function EncryptedIPFSTimestampControls(props) {
   }, [encryptedContent, ipfsClient]);
 
   const onSignDocument = React.useCallback(() => {
-    const eth = new Eth(web3.givenProvider);
-
-    eth.personal_sign(encryptedContent, currentAccount).then(setSignature);
-  }, [currentAccount, encryptedContent, web3.givenProvider]);
+    web3.eth.personal.sign(encryptedContent, currentAccount).then(setSignature);
+  }, [currentAccount, encryptedContent, web3.eth.personal]);
 
   const onCreateTimestamp = React.useCallback(() => {
     const stackID = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(

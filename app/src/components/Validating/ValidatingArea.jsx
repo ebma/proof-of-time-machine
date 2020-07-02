@@ -2,11 +2,11 @@ import { drizzleReactHooks } from "@drizzle/react-plugin";
 import { Button, Grid, TextField, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import BufferList from "bl/BufferList";
-import Eth from "ethjs";
 import React from "react";
 import { AppContext } from "../../contexts/app";
 import CustomDropzone from "../Timestamping/Dropzone";
 import TimestampDetails from "../TimestampDetails/TimestampDetails";
+import { Base64 } from "js-base64";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -78,7 +78,7 @@ function ValidatingArea() {
     reader.onerror = () => console.log("file reading has failed");
     reader.onload = () => {
       const buffer = Buffer.from(reader.result);
-      setFileContent(buffer.toString());
+      setFileContent(buffer);
     };
     reader.readAsArrayBuffer(file);
   }, [file]);
@@ -112,9 +112,11 @@ function ValidatingArea() {
       originalFile = await downloadIPFSFile(selectedTimestamp.cid);
     }
 
-    const eth = new Eth(web3.givenProvider);
-    const recoveredAddress = await eth.personal_ecRecover(
-      originalFile,
+    console.log(originalFile);
+    const contentString = Base64.fromUint8Array(new Uint8Array(originalFile));
+
+    const recoveredAddress = await web3.eth.personal.ecRecover(
+      contentString,
       selectedTimestamp.signature
     );
 
@@ -128,7 +130,7 @@ function ValidatingArea() {
     fileContent,
     selectedTimestamp,
     publicAddress,
-    web3.givenProvider,
+    web3.eth.personal,
   ]);
 
   const onTimestampIdChange = (e) => {

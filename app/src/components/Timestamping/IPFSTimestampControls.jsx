@@ -3,10 +3,10 @@ import { Box, Button, Grid, TextField } from "@material-ui/core";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { red } from "@material-ui/core/colors";
 import { makeStyles } from "@material-ui/core/styles";
+import { Base64 } from "js-base64";
 import { PropTypes } from "prop-types";
 import React from "react";
 import { AppContext } from "../../contexts/app";
-import Eth from "ethjs";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,10 +61,12 @@ function IPFSTimestampControls(props) {
   }, [props.fileContent, ipfsClient]);
 
   const onSignDocument = React.useCallback(() => {
-    const eth = new Eth(web3.givenProvider);
+    const contentString = Base64.fromUint8Array(
+      new Uint8Array(props.fileContent)
+    );
 
-    eth.personal_sign(props.fileContent, currentAccount).then(setSignature);
-  }, [currentAccount, props.fileContent, web3.givenProvider]);
+    web3.eth.personal.sign(contentString, currentAccount).then(setSignature);
+  }, [currentAccount, props.fileContent, web3.eth.personal]);
 
   const onCreateTimestamp = React.useCallback(() => {
     const stackID = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(

@@ -1,7 +1,7 @@
 import { drizzleReactHooks } from "@drizzle/react-plugin";
 import { Box, Button, Grid, TextField } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import Eth from "ethjs";
+import { Base64 } from "js-base64";
 import { PropTypes } from "prop-types";
 import React from "react";
 import { AppContext } from "../../contexts/app";
@@ -33,13 +33,13 @@ function SimpleTimestampControls(props) {
   const [signature, setSignature] = React.useState("");
   const [extra, setExtra] = React.useState("");
 
-  const onSignDocument = React.useCallback(() => {
-    const eth = new Eth(web3.givenProvider);
-    // console.log(props.fileContent);
+  const onSignDocument = React.useCallback(async () => {
+    const contentString = Base64.fromUint8Array(
+      new Uint8Array(props.fileContent)
+    );
 
-    // console.log(props.fileContent);
-    eth.personal_sign(props.fileContent, currentAccount).then(setSignature);
-  }, [props.fileContent, currentAccount, web3.givenProvider]);
+    web3.eth.personal.sign(contentString, currentAccount).then(setSignature);
+  }, [props.fileContent, currentAccount, web3.eth.personal]);
 
   const onCreateTimestamp = React.useCallback(() => {
     const stackId = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(
