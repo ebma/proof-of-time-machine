@@ -80,7 +80,12 @@ function SimpleTimestampControls(props) {
           />
         </Grid>
         <Grid className={classes.item} item sm={12} xs={12}>
-          <Button color="secondary" fullWidth onClick={onCreateTimestamp}>
+          <Button
+            disabled={!signature}
+            color="secondary"
+            fullWidth
+            onClick={onCreateTimestamp}
+          >
             Create timestamp
           </Button>
         </Grid>

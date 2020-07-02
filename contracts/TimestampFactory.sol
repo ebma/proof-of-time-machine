@@ -15,7 +15,12 @@ contract TimestampFactory {
 
     Timestamp[] public timestamps;
 
-    function createTimestamp(string memory _signature, string memory _cid, string memory _extra) public {
+    function createTimestamp(
+        string memory _signature,
+        string memory _cid,
+        string memory _extra
+    ) public {
+        require(bytes(_signature).length >= 132, "Invalid signature length");
         Timestamp memory newTimestamp = Timestamp(_signature, _cid, _extra);
         timestamps.push(newTimestamp);
         uint256 id = timestamps.length - 1;
