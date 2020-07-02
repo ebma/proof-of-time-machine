@@ -1,12 +1,66 @@
 import { drizzleReactHooks } from "@drizzle/react-plugin";
 import { Button, Grid, TextField, Typography } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";
 import BufferList from "bl/BufferList";
+import { Base64 } from "js-base64";
 import React from "react";
 import { AppContext } from "../../contexts/app";
-import CustomDropzone from "../Timestamping/Dropzone";
 import TimestampDetails from "../TimestampDetails/TimestampDetails";
-import { Base64 } from "js-base64";
+import CustomDropzone from "../Timestamping/Dropzone";
+
+function ClaimInfo({ claimOwner }) {
+  const [claimInfo, setClaimInfo] = React.useState(undefined);
+
+  const { drizzle } = drizzleReactHooks.useDrizzle();
+  const { IdentityService } = drizzle.contracts;
+
+  React.useEffect(() => {
+    try {
+      IdentityService.methods
+        .getUserClaimId(claimOwner)
+        .call()
+        .then((claimID) => {
+          console.log("claimID", claimID);
+          IdentityService.methods
+            .claims(claimID)
+            .call()
+            .then(setClaimInfo)
+            .catch(console.error);
+        })
+        .catch(console.error);
+    } catch (error) {
+      console.error(error.message);
+      setClaimInfo(undefined);
+    }
+  }, [claimOwner, IdentityService.methods]);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
+      {claimInfo ? (
+        <Box style={{ padding: 16, textAlign: "center" }}>
+          <Typography variant="h6">Claim Info</Typography>
+          <Typography>
+            <b>Name: </b>
+            {claimInfo.name}
+          </Typography>
+          <Typography>
+            <b>Email: </b>
+            {claimInfo.email}
+          </Typography>
+        </Box>
+      ) : (
+        <Typography>No claim found for this address </Typography>
+      )}
+    </div>
+  );
+}
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -169,6 +223,7 @@ function ValidatingArea() {
           />
         </Grid>
       </Grid>
+      {publicAddress ? <ClaimInfo claimOwner={publicAddress} /> : undefined}
       <Grid className={classes.root}>
         {selectedTimestamp && !selectedTimestamp.cid ? (
           <div style={{ padding: 16, marginTop: 16 }}>
