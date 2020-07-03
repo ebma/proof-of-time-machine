@@ -51,6 +51,10 @@ function ClaimInfo({ claimOwner }) {
             <b>Email: </b>
             {claimInfo.email}
           </Typography>
+          <Typography>
+            <b>Verification Count: </b>
+            {claimInfo.verifiedCount}
+          </Typography>
         </Box>
       ) : (
         <Typography>No claim found for this address </Typography>
