@@ -150,7 +150,10 @@ function ValidatingArea() {
       selectedTimestamp.signature
     );
 
-    if (recoveredAddress === publicAddress) {
+    if (
+      recoveredAddress &&
+      recoveredAddress.toLowerCase() === publicAddress.toLowerCase()
+    ) {
       setValidationSuccess(true);
     } else {
       setValidationSuccess(false);
