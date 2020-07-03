@@ -35,8 +35,6 @@ function TimestampDetailsDialog(props) {
 
   const classes = useStyles();
 
-  console.log("timestamp", timestamp);
-
   return (
     <div>
       {timestamp ? (

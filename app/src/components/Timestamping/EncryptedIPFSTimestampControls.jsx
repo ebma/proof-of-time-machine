@@ -58,8 +58,8 @@ function EncryptedIPFSTimestampControls(props) {
     const publicKey = EthCrypto.publicKeyByPrivateKey(privateKey);
 
     const content = Base64.btoa(new Uint8Array(props.fileContent));
-    console.log("content", content);
 
+    // see https://github.com/pubkey/eth-crypto#encryptwithpublickey
     const encryptedContentObject = await EthCrypto.encryptWithPublicKey(
       publicKey,
       content
@@ -73,14 +73,11 @@ function EncryptedIPFSTimestampControls(props) {
   }, [privateKey, props.fileContent]);
 
   const onUploadToIPFS = React.useCallback(async () => {
-    // see https://github.com/pubkey/eth-crypto#encryptwithpublickey
     const encryptedContent = await getEncryptedContent();
 
     if (encryptedContent) {
-      console.log("encryptedContent", encryptedContent);
       const f = async () => {
         for await (const result of ipfsClient.add(encryptedContent)) {
-          console.log("got result", result);
           setIPFSIdentifier(result.path);
         }
       };
@@ -130,7 +127,6 @@ function EncryptedIPFSTimestampControls(props) {
             label="IPFS Identifier (CID)"
             value={ipfsIdentifier}
           />
-
           <div className={classes.wrapper}>
             <Button
               className={classes.button}
@@ -139,7 +135,7 @@ function EncryptedIPFSTimestampControls(props) {
               disabled={loading || !Boolean(privateKey)}
               onClick={onUploadToIPFS}
             >
-              Upload to IPFS
+              Upload Encrypted to IPFS
             </Button>
             {loading && !ipfsIdentifier && (
               <CircularProgress size={24} className={classes.buttonProgress} />

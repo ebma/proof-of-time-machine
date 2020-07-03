@@ -48,7 +48,6 @@ function IPFSTimestampControls(props) {
     if (props.fileContent) {
       const f = async () => {
         for await (const result of ipfsClient.add(props.fileContent)) {
-          console.log("result", result);
           setIPFSIdentifier(result.path);
         }
       };

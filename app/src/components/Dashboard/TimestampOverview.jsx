@@ -164,8 +164,6 @@ function TimestampOverview() {
     setDetailedTimestamp(timestamp);
   }, []);
 
-  console.log("timestampstore", timestampStore);
-
   return (
     <Box align="center">
       <Box className={classes.box}>

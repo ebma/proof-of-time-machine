@@ -44,14 +44,12 @@ function SimpleTimestampControls(props) {
   }, [props.fileContent, currentAccount, web3.utils, web3.eth.personal]);
 
   const onCreateTimestamp = React.useCallback(() => {
-    const stackId = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(
+    drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(
       signature,
       "",
       extra,
       { gas: 500000 }
     );
-
-    console.log("stackID", stackId);
   }, [drizzle.contracts.TimestampFactory.methods, extra, signature]);
 
   return (

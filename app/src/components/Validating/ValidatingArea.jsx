@@ -19,7 +19,6 @@ function ClaimInfo({ claimOwner }) {
         .getUserClaimId(claimOwner)
         .call()
         .then((claimID) => {
-          console.log("claimID", claimID);
           IdentityService.methods
             .claims(claimID)
             .call()
@@ -123,15 +122,9 @@ function ValidatingArea() {
     if (!file) {
       return;
     }
-    const reader = new FileReader();
-
-    reader.onabort = () => console.log("file reading was aborted");
-    reader.onerror = () => console.log("file reading has failed");
-    reader.onload = () => {
-      const buffer = Buffer.from(reader.result);
-      setFileContent(buffer);
-    };
-    reader.readAsArrayBuffer(file);
+    file.arrayBuffer().then((contentBuffer) => {
+      setFileContent(contentBuffer);
+    });
   }, [file]);
 
   TimestampFactory.methods.getTimestampCount.cacheCall();

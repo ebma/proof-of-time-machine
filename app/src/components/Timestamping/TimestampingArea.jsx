@@ -24,19 +24,11 @@ function TimestampingArea() {
   }, []);
 
   React.useEffect(() => {
-    if (!file)
-      return
+    if (!file) return;
 
-    file.arrayBuffer().then((test) => {console.log(test, "finished"); setFileContent(test)});
-
-    // const reader = new FileReader();
-    // reader.onabort = () => console.log("file reading was aborted");
-    // reader.onerror = () => console.error("file reading has failed");
-    // reader.onload = () => {
-      // const buffer = Buffer.from(reader.result);
-      // setFileContent(buffer.toString());
-    // };
-    // reader.readAsArrayBuffer(file);
+    file.arrayBuffer().then((contentBuffer) => {
+      setFileContent(contentBuffer);
+    });
   }, [file]);
 
   return (
@@ -48,10 +40,7 @@ function TimestampingArea() {
 
       {file ? (
         <Box style={{ padding: 16 }}>
-          <TimestampingPanels
-            file={file}
-            fileContent={fileContent}
-          />
+          <TimestampingPanels file={file} fileContent={fileContent} />
         </Box>
       ) : undefined}
     </div>
