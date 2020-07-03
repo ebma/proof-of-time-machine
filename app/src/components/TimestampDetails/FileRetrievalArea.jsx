@@ -5,6 +5,7 @@ import { red } from "@material-ui/core/colors";
 import Divider from "@material-ui/core/Divider";
 import { makeStyles } from "@material-ui/core/styles";
 import EthCrypto from "eth-crypto";
+import { Base64 } from "js-base64";
 import mime from "mime-types";
 import React from "react";
 import { AppContext } from "../../contexts/app";
@@ -30,6 +31,10 @@ const useStyles = makeStyles((theme) => ({
     alignSelf: "center",
     minWidth: 300,
     maxWidth: 800,
+  },
+  wrapper: {
+    margin: theme.spacing(1),
+    position: "relative",
   },
 }));
 
@@ -69,8 +74,12 @@ function FileRetrievalArea({ cid }) {
       setLoading(true);
 
       const chunks = [];
-      for await (const chunk of ipfsClient.cat(cid)) {
-        chunks.push(chunk);
+      try {
+        for await (const chunk of ipfsClient.cat(cid)) {
+          chunks.push(chunk);
+        }
+      } catch (error) {
+        console.error(error);
       }
       // use blob as workaround for parsing the downloaded data chunks
       const blob = new Blob(chunks, { type: "" });
@@ -82,9 +91,11 @@ function FileRetrievalArea({ cid }) {
         cipherObject
       );
 
-      console.log("decrypted", decrypted);
+      const binaryContent = Base64.atob(decrypted);
+      const binaryContentArray = binaryContent.split(",");
+      const uintArray = new Uint8Array(binaryContentArray);
 
-      openFile([decrypted]);
+      openFile([uintArray]);
     } catch (error) {
       console.error(error);
     } finally {
