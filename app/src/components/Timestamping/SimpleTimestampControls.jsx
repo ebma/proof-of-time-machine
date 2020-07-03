@@ -38,8 +38,10 @@ function SimpleTimestampControls(props) {
       new Uint8Array(props.fileContent)
     );
 
-    web3.eth.personal.sign(contentString, currentAccount).then(setSignature);
-  }, [props.fileContent, currentAccount, web3.eth.personal]);
+    const contentHash = web3.utils.sha3(contentString);
+
+    web3.eth.personal.sign(contentHash, currentAccount).then(setSignature);
+  }, [props.fileContent, currentAccount, web3.utils, web3.eth.personal]);
 
   const onCreateTimestamp = React.useCallback(() => {
     const stackId = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(

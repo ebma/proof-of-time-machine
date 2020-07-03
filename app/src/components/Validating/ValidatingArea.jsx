@@ -2,12 +2,10 @@ import { drizzleReactHooks } from "@drizzle/react-plugin";
 import { Button, Grid, TextField, Typography } from "@material-ui/core";
 import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";
-import BufferList from "bl/BufferList";
-import { Base64 } from "js-base64";
 import React from "react";
-import { AppContext } from "../../contexts/app";
 import TimestampDetails from "../TimestampDetails/TimestampDetails";
 import CustomDropzone from "../Timestamping/Dropzone";
+import { Base64 } from "js-base64";
 
 function ClaimInfo({ claimOwner }) {
   const [claimInfo, setClaimInfo] = React.useState(undefined);
@@ -71,7 +69,6 @@ const useStyles = makeStyles((theme) => ({
 
 function ValidatingArea() {
   const classes = useStyles();
-  const { ipfsClient } = React.useContext(AppContext);
   const { drizzle } = drizzleReactHooks.useDrizzle();
   const { web3 } = drizzle;
   const { TimestampFactory } = drizzle.contracts;
@@ -146,31 +143,17 @@ function ValidatingArea() {
     }
   }, []);
 
-  const downloadIPFSFile = React.useCallback(
-    async (cid) => {
-      let fileBuffer = new BufferList();
-      for await (const result of ipfsClient.get(cid)) {
-        for await (const chunk of result.content) {
-          fileBuffer.append(chunk);
-        }
-        return fileBuffer.toString();
-      }
-    },
-    [ipfsClient]
-  );
-
   const validateTimestamp = React.useCallback(async () => {
-    let originalFile = fileContent;
+    let originalMessage;
     if (selectedTimestamp.cid) {
-      // file was uploaded to ipfs
-      originalFile = await downloadIPFSFile(selectedTimestamp.cid);
+      originalMessage = selectedTimestamp.cid;
+    } else {
+      const contentString = Base64.fromUint8Array(new Uint8Array(fileContent));
+      originalMessage = web3.utils.sha3(contentString);
     }
 
-    console.log(originalFile);
-    const contentString = Base64.fromUint8Array(new Uint8Array(originalFile));
-
     const recoveredAddress = await web3.eth.personal.ecRecover(
-      contentString,
+      originalMessage,
       selectedTimestamp.signature
     );
 
@@ -180,10 +163,10 @@ function ValidatingArea() {
       setValidationSuccess(false);
     }
   }, [
-    downloadIPFSFile,
     fileContent,
     selectedTimestamp,
     publicAddress,
+    web3.utils,
     web3.eth.personal,
   ]);
 

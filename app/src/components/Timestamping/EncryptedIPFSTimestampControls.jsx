@@ -9,6 +9,7 @@ import TextField from "@material-ui/core/TextField";
 import EthCrypto from "eth-crypto";
 import { PropTypes } from "prop-types";
 import React from "react";
+import { Base64 } from "js-base64";
 import { AppContext } from "../../contexts/app";
 
 const useStyles = makeStyles((theme) => ({
@@ -91,20 +92,18 @@ function EncryptedIPFSTimestampControls(props) {
   }, [getEncryptedContent, ipfsClient]);
 
   const onSignDocument = React.useCallback(async () => {
-    const encryptedContent = await getEncryptedContent();
-    console.log("signing encryptedContent", encryptedContent);
-
-    web3.eth.personal.sign(encryptedContent, currentAccount).then(setSignature);
-  }, [currentAccount, getEncryptedContent, web3.eth]);
+    if (ipfsIdentifier) {
+      web3.eth.personal.sign(ipfsIdentifier, currentAccount).then(setSignature);
+    }
+  }, [currentAccount, ipfsIdentifier, web3.eth]);
 
   const onCreateTimestamp = React.useCallback(() => {
-    const stackID = drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(
+    drizzle.contracts.TimestampFactory.methods.createTimestamp.cacheSend(
       signature,
       ipfsIdentifier,
       extra,
       { gas: 500000 }
     );
-    console.log(stackID);
   }, [
     drizzle.contracts.TimestampFactory.methods,
     extra,
