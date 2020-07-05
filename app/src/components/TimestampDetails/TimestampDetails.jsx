@@ -30,6 +30,18 @@ function TimestampDetails({ timestamp }) {
       <Grid container spacing={2}>
         <Grid item xs={3}>
           <Typography variant="body1" align="right">
+            <b>Created on</b>
+          </Typography>
+        </Grid>
+        <Grid className={classes.typographyItem} item xs={9}>
+          <Typography variant="body1">
+            {new Date(timestamp.timestamp * 1000).toUTCString()}
+          </Typography>
+        </Grid>
+      </Grid>
+      <Grid container spacing={2}>
+        <Grid item xs={3}>
+          <Typography variant="body1" align="right">
             <b>Signature</b>
           </Typography>
         </Grid>

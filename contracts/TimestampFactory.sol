@@ -5,6 +5,7 @@ contract TimestampFactory {
     event NewTimestamp(uint256 timestampId, string signature);
 
     struct Timestamp {
+        uint256 timestamp;
         string signature;
         string cid;
         string extra;
@@ -21,7 +22,12 @@ contract TimestampFactory {
         string memory _extra
     ) public {
         require(bytes(_signature).length >= 132, "Invalid signature length");
-        Timestamp memory newTimestamp = Timestamp(_signature, _cid, _extra);
+        Timestamp memory newTimestamp = Timestamp(
+            now,
+            _signature,
+            _cid,
+            _extra
+        );
         timestamps.push(newTimestamp);
         uint256 id = timestamps.length - 1;
         timestampToOwner[id] = msg.sender;
