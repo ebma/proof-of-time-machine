@@ -11,22 +11,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function TimestampDetails({ timestamp }) {
+function TimestampDetails({ timestamp, timestampId }) {
   const classes = useStyles();
   return (
     <Grid container>
-      {timestamp.id ? (
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <Typography variant="body1" align="right">
-              <b>ID</b>
-            </Typography>
-          </Grid>
-          <Grid className={classes.typographyItem} item xs={9}>
-            <Typography variant="body1">{timestamp.id}</Typography>
-          </Grid>
+      <Grid container spacing={2}>
+        <Grid item xs={3}>
+          <Typography variant="body1" align="right">
+            <b>ID</b>
+          </Typography>
         </Grid>
-      ) : undefined}
+        <Grid className={classes.typographyItem} item xs={9}>
+          <Typography variant="body1">{timestampId}</Typography>
+        </Grid>
+      </Grid>
       <Grid container spacing={2}>
         <Grid item xs={3}>
           <Typography variant="body1" align="right">

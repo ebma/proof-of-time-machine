@@ -1,3 +1,4 @@
+import { drizzleReactHooks } from "@drizzle/react-plugin";
 import { Divider } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -8,9 +9,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import { PropTypes } from "prop-types";
 import React from "react";
+import FileRetrievalArea from "./FileRetrievalArea";
 import ShareArea from "./ShareArea";
 import TimestampDetails from "./TimestampDetails";
-import FileRetrievalArea from "./FileRetrievalArea";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,9 +32,25 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function TimestampDetailsDialog(props) {
-  const { open, timestamp, onClose } = props;
-
+  const { open, timestampId, onClose } = props;
   const classes = useStyles();
+
+  const { drizzle } = drizzleReactHooks.useDrizzle();
+  const { TimestampFactory } = drizzle.contracts;
+
+  const [timestamp, setTimestamp] = React.useState(null);
+
+  React.useEffect(() => {
+    try {
+      TimestampFactory.methods
+        .timestamps(timestampId)
+        .call()
+        .then(setTimestamp)
+        .catch(console.error);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [TimestampFactory.methods, timestampId]);
 
   return (
     <div>
@@ -43,9 +60,9 @@ function TimestampDetailsDialog(props) {
             Timestamp Details
           </DialogTitle>
           <DialogContent className={classes.root}>
-            <TimestampDetails timestamp={timestamp} />
+            <TimestampDetails timestamp={timestamp} timestampId={timestampId} />
             <Divider style={{ marginTop: 8, marginBottom: 8 }} />
-            <ShareArea timestamp={timestamp} />
+            <ShareArea timestampId={timestampId} />
             {timestamp.cid ? (
               <>
                 <Divider style={{ marginTop: 16, marginBottom: 16 }} />

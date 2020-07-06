@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ShareArea({ timestamp }) {
+function ShareArea({ timestampId }) {
   const classes = useStyles();
 
   const [success, setSuccess] = React.useState(undefined);
@@ -30,7 +30,7 @@ function ShareArea({ timestamp }) {
       if (result.state === "granted" || result.state === "prompt") {
         const url =
           window.location.origin +
-          `?id=${timestamp.id}&address=${currentAccount}`;
+          `?id=${timestampId}&address=${currentAccount}`;
 
         window.navigator.clipboard.writeText(url).then(
           function () {
@@ -42,7 +42,7 @@ function ShareArea({ timestamp }) {
         );
       }
     });
-  }, [currentAccount, timestamp]);
+  }, [currentAccount, timestampId]);
 
   return (
     <Box className={classes.root}>

@@ -13,7 +13,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
 import React from "react";
 import { AppContext } from "../../contexts/app";
-import TimestampDetailsDialog from "../TimestampDetails/TimestampDetailsDialog";
+import { useHistory } from "react-router-dom";
 
 const useListStyles = makeStyles((theme) => ({
   root: {
@@ -99,6 +99,7 @@ function TimestampOverview() {
   const classes = useStyles();
 
   const { currentAccount } = React.useContext(AppContext);
+  const history = useHistory();
 
   const [timestampByOwnerCallID, setTimestampsByOwnerCallID] = React.useState(
     undefined
@@ -108,7 +109,6 @@ function TimestampOverview() {
     setSelectedTimestampCallIDs,
   ] = React.useState([]);
   const [selectedTimestamps, setSelectedTimestamps] = React.useState([]);
-  const [detailedTimestamp, setDetailedTimestamp] = React.useState(undefined);
 
   const { drizzle } = drizzleReactHooks.useDrizzle();
   const { TimestampFactory } = drizzle.contracts;
@@ -160,9 +160,14 @@ function TimestampOverview() {
     setSelectedTimestamps(augmentedTimestamps);
   }, [selectedTimestampCallIDs, timestampStore.timestamps]);
 
-  const openDetails = React.useCallback((timestamp) => {
-    setDetailedTimestamp(timestamp);
-  }, []);
+  const openDetails = React.useCallback(
+    (timestamp) => {
+      if (timestamp && timestamp.id) {
+        history.push(`/view/${timestamp.id}`);
+      }
+    },
+    [history]
+  );
 
   return (
     <Box align="center">
@@ -172,11 +177,6 @@ function TimestampOverview() {
       <TimestampList
         openDetails={openDetails}
         timestamps={selectedTimestamps}
-      />
-      <TimestampDetailsDialog
-        timestamp={detailedTimestamp}
-        open={Boolean(detailedTimestamp)}
-        onClose={() => setDetailedTimestamp(undefined)}
       />
     </Box>
   );

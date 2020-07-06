@@ -2,10 +2,11 @@ import { drizzleReactHooks } from "@drizzle/react-plugin";
 import { Button, Grid, TextField, Typography } from "@material-ui/core";
 import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";
+import { Base64 } from "js-base64";
 import React from "react";
+import { useHistory } from "react-router-dom";
 import TimestampDetails from "../TimestampDetails/TimestampDetails";
 import CustomDropzone from "../Timestamping/Dropzone";
-import { Base64 } from "js-base64";
 
 function ClaimInfo({ claimOwner }) {
   const [claimInfo, setClaimInfo] = React.useState(undefined);
@@ -75,6 +76,8 @@ function ValidatingArea() {
   const { drizzle } = drizzleReactHooks.useDrizzle();
   const { web3 } = drizzle;
   const { TimestampFactory } = drizzle.contracts;
+
+  const history = useHistory();
 
   const timestampStore = drizzleReactHooks.useDrizzleState((drizzleState) => ({
     ...drizzleState.contracts.TimestampFactory,
@@ -222,8 +225,17 @@ function ValidatingArea() {
         ) : undefined}
       </Grid>
       {selectedTimestamp ? (
-        <div style={{ padding: 16, margin: 16 }}>
-          <TimestampDetails timestamp={selectedTimestamp} />
+        <div style={{ display: "flex", padding: 16, margin: 16 }}>
+          <TimestampDetails
+            timestamp={selectedTimestamp}
+            timestampId={timestampId}
+          />
+          <Button
+            color="secondary"
+            onClick={() => history.push(`/view/${timestampId}`)}
+          >
+            Open Details
+          </Button>
         </div>
       ) : undefined}
       <Button

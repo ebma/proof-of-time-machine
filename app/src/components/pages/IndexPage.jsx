@@ -5,12 +5,14 @@ import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
+import { useHistory, useLocation } from "react-router-dom";
 import DashboardArea from "../Dashboard/DashboardArea";
 import Footer from "../Footer";
 import Header from "../Header";
 import IdentityArea from "../Identity/IdentityArea";
-import ValidatingArea from "../Validating/ValidatingArea";
+import TimestampDetailsDialog from "../TimestampDetails/TimestampDetailsDialog";
 import TimestampingArea from "../Timestamping/TimestampingArea";
+import ValidatingArea from "../Validating/ValidatingArea";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,8 +33,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function parseTimestampIDFromURL(location) {
+  if (location.pathname.includes("view")) {
+    const parts = location.pathname.split("/");
+    const id = Number(parts[parts.length - 1]);
+    if (!isNaN(id)) {
+      return id;
+    } else {
+      return undefined;
+    }
+  }
+}
+
 function IndexPage(props) {
   const classes = useStyles();
+
+  const [timestampId, setTimestampId] = React.useState(undefined);
+
+  const location = useLocation();
+  const history = useHistory();
+
+  React.useEffect(() => {
+    setTimestampId(parseTimestampIDFromURL(location));
+  }, [location]);
 
   return (
     <Container className={classes.root} component="main">
@@ -72,6 +95,11 @@ function IndexPage(props) {
           </Paper>
         </Grid>
       </Grid>
+      <TimestampDetailsDialog
+        timestampId={timestampId}
+        open={timestampId !== undefined}
+        onClose={() => history.push("/")}
+      />
       <Footer />
     </Container>
   );
