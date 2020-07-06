@@ -35,6 +35,22 @@ function ClaimList(props) {
   const { claims } = props;
   const classes = useListStyles();
 
+  const { drizzle } = drizzleReactHooks.useDrizzle();
+  const { IdentityService } = drizzle.contracts;
+
+  const handleVerifyClaim = (claimOwner) => {
+    console.log(claimOwner);
+    IdentityService.methods
+      .verifyClaim(claimOwner)
+      .send({ gas: 400000 })
+      .on("transactionHash", (transactionHash) => {
+        alert("Success! Claim Verified");
+      })
+      .on("error", (err) => {
+        alert("You already verified this claim!");
+      });
+  };
+
   const ClaimList = React.useMemo(() => {
     return claims.length ? (
       claims.map((claim, index) => (
@@ -45,6 +61,12 @@ function ClaimList(props) {
               primary={`${claim.name} | ${claim.email} | Verified Count : ${claim.verifiedCount}`}
               secondary={claim.ownerAddress}
             />
+            <Button
+              color="secondary"
+              onClick={() => handleVerifyClaim(claim.ownerAddress)}
+            >
+              Verify Claim
+            </Button>
           </ListItem>
         </div>
       ))
@@ -98,7 +120,6 @@ function IdentityArea() {
 
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
-  const [claimOwner, setClaimOwner] = React.useState("");
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -117,23 +138,6 @@ function IdentityArea() {
       })
       .on("error", (err) => {
         alert(err.message);
-      });
-  };
-
-  const handleClaimOwner = (e) => {
-    setClaimOwner(e.target.value);
-  };
-
-  const handleVerifyClaim = () => {
-    console.log(claimOwner);
-    IdentityService.methods
-      .verifyClaim(claimOwner)
-      .send({ gas: 400000 })
-      .on("transactionHash", (transactionHash) => {
-        alert("Success! Claim Verified");
-      })
-      .on("error", (err) => {
-        alert("Claim Already Verified Once");
       });
   };
 
@@ -160,18 +164,6 @@ function IdentityArea() {
         <Typography align="left">Claims:</Typography>
       </Box>
       <ClaimList claims={claims} />
-
-      <Grid>
-        <TextField
-          label="Claim Owner Address"
-          variant="filled"
-          value={claimOwner}
-          onChange={handleClaimOwner}
-        />
-        <Button color="secondary" onClick={handleVerifyClaim}>
-          Verify Claim
-        </Button>
-      </Grid>
     </Box>
   );
 }
