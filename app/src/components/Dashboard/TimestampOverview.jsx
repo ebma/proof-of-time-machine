@@ -63,7 +63,7 @@ function TimestampList(props) {
         </div>
       ))
     ) : (
-      <Typography>No timestamps found for your account...</Typography>
+      <Typography>-</Typography>
     );
   }, [classes.text, openDetails, timestamps]);
 

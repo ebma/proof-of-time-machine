@@ -38,18 +38,21 @@ function ClaimList(props) {
   const { drizzle } = drizzleReactHooks.useDrizzle();
   const { IdentityService } = drizzle.contracts;
 
-  const handleVerifyClaim = (claimOwner) => {
-    console.log(claimOwner);
-    IdentityService.methods
-      .verifyClaim(claimOwner)
-      .send({ gas: 400000 })
-      .on("transactionHash", (transactionHash) => {
-        alert("Success! Claim Verified");
-      })
-      .on("error", (err) => {
-        alert("You already verified this claim!");
-      });
-  };
+  const handleVerifyClaim = React.useCallback(
+    (claimOwner) => {
+      console.log(claimOwner);
+      IdentityService.methods
+        .verifyClaim(claimOwner)
+        .send({ gas: 400000 })
+        .on("transactionHash", (transactionHash) => {
+          alert("Success! Claim Verified");
+        })
+        .on("error", (err) => {
+          alert("You already verified this claim!");
+        });
+    },
+    [IdentityService.methods]
+  );
 
   const ClaimList = React.useMemo(() => {
     return claims.length ? (
@@ -73,7 +76,7 @@ function ClaimList(props) {
     ) : (
       <Typography>No claims found</Typography>
     );
-  }, [claims]);
+  }, [claims, handleVerifyClaim]);
 
   return (
     <Paper>
