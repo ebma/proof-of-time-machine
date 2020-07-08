@@ -9,6 +9,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import { PropTypes } from "prop-types";
 import React from "react";
+import { AppContext } from "../../contexts/app";
 import FileRetrievalArea from "./FileRetrievalArea";
 import ShareArea from "./ShareArea";
 import TimestampDetails from "./TimestampDetails";
@@ -38,7 +39,12 @@ function TimestampDetailsDialog(props) {
   const { drizzle } = drizzleReactHooks.useDrizzle();
   const { TimestampFactory } = drizzle.contracts;
 
+  const { currentAccount } = React.useContext(AppContext);
+
   const [timestamp, setTimestamp] = React.useState(null);
+  const [ownedTimestamps, setOwnedTimestamps] = React.useState([]);
+
+  console.log("ownedTimestamps", ownedTimestamps);
 
   React.useEffect(() => {
     try {
@@ -48,9 +54,21 @@ function TimestampDetailsDialog(props) {
         .then(setTimestamp)
         .catch(console.error);
     } catch (error) {
-      console.error(error);
+      console.error(error.message);
     }
   }, [TimestampFactory.methods, timestampId]);
+
+  React.useEffect(() => {
+    try {
+      TimestampFactory.methods
+        .getTimestampsByOwner(currentAccount)
+        .call()
+        .then(setOwnedTimestamps)
+        .catch(console.error);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }, [TimestampFactory.methods, currentAccount]);
 
   return (
     <div>
@@ -61,8 +79,12 @@ function TimestampDetailsDialog(props) {
           </DialogTitle>
           <DialogContent className={classes.root}>
             <TimestampDetails timestamp={timestamp} timestampId={timestampId} />
-            <Divider style={{ marginTop: 8, marginBottom: 8 }} />
-            <ShareArea timestampId={timestampId} />
+            {ownedTimestamps.includes(String(timestampId)) ? (
+              <>
+                <Divider style={{ marginTop: 8, marginBottom: 8 }} />
+                <ShareArea timestampId={timestampId} />
+              </>
+            ) : undefined}
             {timestamp.cid ? (
               <>
                 <Divider style={{ marginTop: 16, marginBottom: 16 }} />
